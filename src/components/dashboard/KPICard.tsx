@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface KPICardProps {
   title: string;
@@ -10,6 +10,7 @@ interface KPICardProps {
   trendLabel?: string;
   variant?: 'default' | 'positive' | 'negative' | 'warning';
   icon?: React.ReactNode;
+  className?: string;
 }
 
 export function KPICard({ 
@@ -20,7 +21,8 @@ export function KPICard({
   trendValue, 
   trendLabel,
   variant = 'default',
-  icon 
+  icon,
+  className
 }: KPICardProps) {
   const trendColor = {
     up: 'text-success',
@@ -28,38 +30,71 @@ export function KPICard({
     stable: 'text-muted-foreground'
   };
 
-  const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
+  const trendBgColor = {
+    up: 'bg-success/10',
+    down: 'bg-destructive/10',
+    stable: 'bg-muted/50'
+  };
+
+  const TrendIcon = trend === 'up' ? ArrowUpRight : trend === 'down' ? ArrowDownRight : Minus;
 
   const variantStyles = {
-    default: 'border-kpi-border',
-    positive: 'border-success/20 bg-success/5',
-    negative: 'border-destructive/20 bg-destructive/5',
-    warning: 'border-warning/20 bg-warning/5'
+    default: 'border-border/50',
+    positive: 'border-success/30',
+    negative: 'border-destructive/30',
+    warning: 'border-warning/30'
+  };
+
+  const iconBgStyles = {
+    default: 'bg-primary/10 text-primary',
+    positive: 'bg-success/10 text-success',
+    negative: 'bg-destructive/10 text-destructive',
+    warning: 'bg-warning/10 text-warning'
+  };
+
+  const glowStyles = {
+    default: '',
+    positive: 'hover:shadow-glow-success',
+    negative: 'hover:shadow-glow-danger',
+    warning: 'hover:shadow-glow-warning'
   };
 
   return (
     <div className={cn(
-      "kpi-card fade-in",
-      variantStyles[variant]
+      "kpi-card group cursor-pointer",
+      variantStyles[variant],
+      glowStyles[variant],
+      className
     )}>
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-4">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
           {title}
         </span>
-        {icon && <div className="text-muted-foreground">{icon}</div>}
+        {icon && (
+          <div className={cn(
+            "p-2 rounded-lg transition-transform group-hover:scale-110",
+            iconBgStyles[variant]
+          )}>
+            {icon}
+          </div>
+        )}
       </div>
       
-      <div className="flex items-baseline gap-2 mb-1">
-        <span className="text-2xl font-semibold text-foreground">{value}</span>
+      <div className="flex items-baseline gap-2 mb-2">
+        <span className="text-3xl font-bold text-foreground tracking-tight">{value}</span>
         {subtitle && <span className="text-sm text-muted-foreground">{subtitle}</span>}
       </div>
 
       {trend && trendValue && (
-        <div className="flex items-center gap-1.5">
-          <TrendIcon className={cn("h-3.5 w-3.5", trendColor[trend])} />
-          <span className={cn("text-sm font-medium", trendColor[trend])}>
-            {trendValue}
-          </span>
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
+            trendBgColor[trend],
+            trendColor[trend]
+          )}>
+            <TrendIcon className="h-3 w-3" />
+            <span>{trendValue}</span>
+          </div>
           {trendLabel && (
             <span className="text-xs text-muted-foreground">{trendLabel}</span>
           )}
