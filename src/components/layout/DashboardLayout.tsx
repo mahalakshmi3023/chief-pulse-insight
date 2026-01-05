@@ -13,11 +13,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Background gradient effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-chart-4/5 rounded-full blur-3xl" />
+      </div>
+      
       <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
       
       <div className={cn(
-        "transition-all duration-300",
-        sidebarCollapsed ? "ml-16" : "ml-56"
+        "relative transition-all duration-300",
+        sidebarCollapsed ? "ml-[68px]" : "ml-60"
       )}>
         <GlobalHeader />
         <BreakingTicker />
