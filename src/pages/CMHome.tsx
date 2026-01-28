@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { Panel } from '@/components/dashboard/Panel';
 import { HashtagDrawer } from '@/components/dashboard/HashtagDrawer';
@@ -16,6 +16,18 @@ export default function CMHome() {
   const [selectedHashtag, setSelectedHashtag] = useState<typeof hashtags[0] | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [riskFilter, setRiskFilter] = useState('all');
+  const [greeting, setGreeting] = useState('Good Morning');
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      setGreeting('Good Morning');
+    } else if (hour < 18) {
+      setGreeting('Good Afternoon');
+    } else {
+      setGreeting('Good Evening');
+    }
+  }, []);
 
   const handleHashtagClick = (hashtag: typeof hashtags[0]) => {
     setSelectedHashtag(hashtag);
@@ -75,7 +87,7 @@ export default function CMHome() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-foreground">Good Morning, Leader</h1>
+            <h1 className="text-2xl font-bold text-foreground">{greeting}, Leader</h1>
             <Badge variant="outline" className="bg-success/10 text-success border-success/30 gap-1">
               <Sparkles className="w-3 h-3" />
               Live

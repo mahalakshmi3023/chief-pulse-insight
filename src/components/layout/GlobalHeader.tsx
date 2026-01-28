@@ -150,7 +150,7 @@ export function GlobalHeader({ onOpenCommandPalette }: GlobalHeaderProps) {
             {/* User Avatar */}
             <div className="flex items-center gap-3 pl-3 border-l border-border/50">
               <div className="hidden sm:block text-right">
-                <p className="text-sm font-medium text-foreground">Chief Minister</p>
+                <p className="text-sm font-medium text-foreground">Leader</p>
                 <p className="text-xs text-muted-foreground">Admin</p>
               </div>
               <Avatar className="h-9 w-9 border-2 border-primary/30 ring-2 ring-primary/10 ring-offset-2 ring-offset-background">
