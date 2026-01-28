@@ -4,101 +4,101 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TN CM Media Intelligence Dashboard - Modern Dark Theme with Purple Accents */
+/* Puducherry Leader Intelligence Dashboard - Maroon & Navy Theme */
 
 @layer base {
   :root {
-    /* Light theme - kept for reference but we'll use dark by default */
-    --background: 240 10% 3.9%;
+    /* Dark navy background matching LJK site */
+    --background: 222 47% 11%;
     --foreground: 0 0% 98%;
 
-    --card: 240 10% 6%;
+    --card: 222 47% 13%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 6%;
+    --popover: 222 47% 13%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary - Purple accent */
-    --primary: 270 70% 60%;
+    /* Primary - Maroon/Red accent from LJK branding */
+    --primary: 0 78% 41%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 270 70% 70%;
+    --primary-glow: 0 78% 50%;
 
     /* Secondary */
-    --secondary: 240 10% 12%;
+    --secondary: 222 47% 18%;
     --secondary-foreground: 0 0% 95%;
 
     /* Muted tones */
-    --muted: 240 10% 16%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 222 47% 20%;
+    --muted-foreground: 0 0% 60%;
 
-    /* Accent - Purple variant */
-    --accent: 270 60% 20%;
-    --accent-foreground: 270 60% 90%;
+    /* Accent - Maroon variant */
+    --accent: 0 60% 20%;
+    --accent-foreground: 0 60% 90%;
 
     /* Status colors - vibrant */
-    --destructive: 0 72% 55%;
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 150 80% 50%;
+    --success: 150 70% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 95% 55%;
+    --warning: 45 95% 50%;
     --warning-foreground: 0 0% 9%;
 
     /* Sentiment specific */
-    --positive: 150 80% 50%;
-    --negative: 0 72% 55%;
+    --positive: 150 70% 45%;
+    --negative: 0 72% 50%;
     --neutral: 0 0% 50%;
 
     /* Emotion colors */
-    --emotion-anger: 0 84% 60%;
-    --emotion-fear: 280 60% 60%;
-    --emotion-hope: 150 80% 55%;
-    --emotion-trust: 215 90% 60%;
+    --emotion-anger: 0 84% 55%;
+    --emotion-fear: 280 60% 55%;
+    --emotion-hope: 150 70% 50%;
+    --emotion-trust: 215 80% 55%;
 
-    /* Chart colors - vibrant gradients */
-    --chart-1: 270 70% 60%;
-    --chart-2: 150 80% 50%;
-    --chart-3: 45 95% 55%;
-    --chart-4: 200 85% 55%;
-    --chart-5: 330 70% 60%;
+    /* Chart colors - maroon/navy theme */
+    --chart-1: 0 78% 41%;
+    --chart-2: 150 70% 45%;
+    --chart-3: 45 95% 50%;
+    --chart-4: 200 85% 50%;
+    --chart-5: 330 60% 55%;
 
     /* Borders and inputs */
-    --border: 240 10% 18%;
-    --input: 240 10% 12%;
-    --ring: 270 70% 60%;
+    --border: 222 47% 22%;
+    --input: 222 47% 18%;
+    --ring: 0 78% 41%;
 
     --radius: 1rem;
 
-    /* Sidebar - dark with glow */
-    --sidebar-background: 240 10% 4%;
-    --sidebar-foreground: 0 0% 60%;
-    --sidebar-primary: 270 70% 60%;
+    /* Sidebar - deep navy with maroon accents */
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 0 0% 65%;
+    --sidebar-primary: 0 78% 41%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 50% 15%;
-    --sidebar-accent-foreground: 270 60% 90%;
-    --sidebar-border: 240 10% 12%;
-    --sidebar-ring: 270 70% 60%;
+    --sidebar-accent: 0 50% 18%;
+    --sidebar-accent-foreground: 0 60% 90%;
+    --sidebar-border: 222 47% 16%;
+    --sidebar-ring: 0 78% 41%;
 
     /* Dashboard specific */
-    --ticker-bg: 270 70% 10%;
+    --ticker-bg: 0 60% 12%;
     --ticker-foreground: 0 0% 98%;
-    --kpi-border: 240 10% 18%;
+    --kpi-border: 222 47% 22%;
 
-    /* Glow effects */
-    --glow-primary: 270 70% 60%;
-    --glow-success: 150 80% 50%;
-    --glow-warning: 45 95% 55%;
-    --glow-danger: 0 72% 55%;
+    /* Glow effects - maroon theme */
+    --glow-primary: 0 78% 41%;
+    --glow-success: 150 70% 45%;
+    --glow-warning: 45 95% 50%;
+    --glow-danger: 0 72% 50%;
 
     /* Glass effect */
-    --glass-bg: 240 10% 8% / 0.8;
+    --glass-bg: 222 47% 12% / 0.85;
     --glass-border: 0 0% 100% / 0.1;
   }
 
   .dark {
     /* Same as root since we're dark by default */
-    --background: 240 10% 3.9%;
+    --background: 222 47% 11%;
     --foreground: 0 0% 98%;
   }
 }
@@ -122,12 +122,12 @@
 @layer components {
   .dashboard-card {
     @apply bg-card rounded-2xl border border-border p-6 shadow-lg transition-all hover:shadow-xl;
-    background: linear-gradient(145deg, hsl(240 10% 8%) 0%, hsl(240 10% 5%) 100%);
+    background: linear-gradient(145deg, hsl(222 47% 15%) 0%, hsl(222 47% 11%) 100%);
   }
 
   .kpi-card {
     @apply bg-card rounded-2xl border border-kpi-border p-5 transition-all duration-300;
-    background: linear-gradient(145deg, hsl(240 10% 8%) 0%, hsl(240 10% 5%) 100%);
+    background: linear-gradient(145deg, hsl(222 47% 15%) 0%, hsl(222 47% 11%) 100%);
   }
 
   .kpi-card:hover {
@@ -137,7 +137,7 @@
 
   .panel {
     @apply bg-card rounded-2xl border border-border p-5 transition-all;
-    background: linear-gradient(145deg, hsl(240 10% 8%) 0%, hsl(240 10% 5%) 100%);
+    background: linear-gradient(145deg, hsl(222 47% 15%) 0%, hsl(222 47% 11%) 100%);
   }
 
   .glass-panel {
@@ -201,9 +201,9 @@
     }
   }
 
-  /* Gradient text */
+  /* Gradient text - maroon theme */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(270 70% 70%) 0%, hsl(200 85% 65%) 100%);
+    background: linear-gradient(135deg, hsl(0 78% 55%) 0%, hsl(0 78% 70%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -235,10 +235,10 @@
     transform: translateY(-4px);
   }
 
-  /* Animated gradient border */
+  /* Animated gradient border - maroon theme */
   .gradient-border {
     position: relative;
-    background: linear-gradient(145deg, hsl(240 10% 8%) 0%, hsl(240 10% 5%) 100%);
+    background: linear-gradient(145deg, hsl(222 47% 15%) 0%, hsl(222 47% 11%) 100%);
     border-radius: 1rem;
   }
 
@@ -248,7 +248,7 @@
     inset: 0;
     padding: 1px;
     border-radius: 1rem;
-    background: linear-gradient(135deg, hsl(270 70% 50%) 0%, hsl(200 85% 55%) 50%, hsl(150 80% 50%) 100%);
+    background: linear-gradient(135deg, hsl(0 78% 45%) 0%, hsl(0 78% 55%) 50%, hsl(150 70% 45%) 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -282,8 +282,8 @@
   }
 
   /* Chart gradient fills */
-  .chart-gradient-purple {
-    fill: url(#purpleGradient);
+  .chart-gradient-maroon {
+    fill: url(#maroonGradient);
   }
 
   .chart-gradient-green {
@@ -336,17 +336,17 @@
     text-wrap: balance;
   }
 
-  /* Gradient backgrounds */
+  /* Gradient backgrounds - maroon theme */
   .bg-gradient-primary {
-    background: linear-gradient(135deg, hsl(270 70% 60%) 0%, hsl(280 60% 50%) 100%);
+    background: linear-gradient(135deg, hsl(0 78% 41%) 0%, hsl(0 60% 35%) 100%);
   }
 
   .bg-gradient-success {
-    background: linear-gradient(135deg, hsl(150 80% 50%) 0%, hsl(170 70% 45%) 100%);
+    background: linear-gradient(135deg, hsl(150 70% 45%) 0%, hsl(170 60% 40%) 100%);
   }
 
   .bg-gradient-card {
-    background: linear-gradient(145deg, hsl(240 10% 10%) 0%, hsl(240 10% 6%) 100%);
+    background: linear-gradient(145deg, hsl(222 47% 16%) 0%, hsl(222 47% 12%) 100%);
   }
 
   /* Animated background */
@@ -381,17 +381,17 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: hsl(240 10% 10%);
+    background: hsl(222 47% 14%);
     border-radius: 3px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(240 10% 25%);
+    background: hsl(222 47% 28%);
     border-radius: 3px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: hsl(240 10% 35%);
+    background: hsl(222 47% 38%);
   }
 
   /* Focus ring for accessibility */

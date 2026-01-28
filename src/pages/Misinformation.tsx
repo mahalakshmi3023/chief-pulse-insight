@@ -23,7 +23,7 @@ export default function Misinformation() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Misinformation Tracker</h1>
-          <p className="text-sm text-muted-foreground mt-1">Monitor and counter false claims</p>
+          <p className="text-sm text-muted-foreground mt-1">Monitor and counter false claims in Puducherry</p>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <ShieldAlert className="w-4 h-4 text-warning" />

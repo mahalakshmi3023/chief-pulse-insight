@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Panel } from '@/components/dashboard/Panel';
 import { SeverityBadge } from '@/components/dashboard/Badges';
-import { breakingNews, districts } from '@/data/mockData';
+import { breakingNews, constituencies } from '@/data/mockData';
 import { AlertTriangle, Clock, MapPin, ExternalLink, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,9 +11,9 @@ export default function BreakingNews() {
 
   // Watchlist topics for crisis escalation
   const watchlistTopics = [
-    { id: 1, topic: 'Water Supply Disruption', districts: ['Chennai', 'Coimbatore'], riskLevel: 'high', mentions: 12400 },
-    { id: 2, topic: 'Fuel Price Protest', districts: ['Chennai', 'Madurai', 'Salem'], riskLevel: 'medium', mentions: 8900 },
-    { id: 3, topic: 'Power Outage Reports', districts: ['Erode', 'Salem'], riskLevel: 'low', mentions: 3200 },
+    { id: 1, topic: 'Water Supply Disruption', constituencies: ['Lawspet', 'Mudaliarpet'], riskLevel: 'high', mentions: 8400 },
+    { id: 2, topic: 'Coastal Flooding Alert', constituencies: ['Ozhukarai', 'Ariyankuppam'], riskLevel: 'medium', mentions: 5900 },
+    { id: 3, topic: 'Power Outage Reports', constituencies: ['Villianur', 'Bahour'], riskLevel: 'low', mentions: 2200 },
   ];
 
   const handleActionNoteChange = (newsId: string, note: string) => {
@@ -25,7 +25,7 @@ export default function BreakingNews() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Breaking News & Crisis</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Breaking Alerts & Crisis</h1>
           <p className="text-sm text-muted-foreground mt-1">Real-time news monitoring and crisis detection</p>
         </div>
         <Button variant="outline" size="sm" className="gap-2">
@@ -38,7 +38,7 @@ export default function BreakingNews() {
       <Panel title="Breaking News Feed" subtitle="Latest updates requiring attention">
         <div className="space-y-4">
           {breakingNews.map((news) => {
-            const relatedDistricts = news.districts.map(id => districts.find(d => d.id === id)?.name).filter(Boolean);
+            const relatedConstituencies = news.constituencies.map(id => constituencies.find(c => c.id === id)?.name).filter(Boolean);
             
             return (
               <div 
@@ -69,7 +69,7 @@ export default function BreakingNews() {
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
-                      {relatedDistricts.join(', ')}
+                      {relatedConstituencies.join(', ')}
                     </span>
                   </div>
                   <span>Source: {news.source}</span>
@@ -105,7 +105,7 @@ export default function BreakingNews() {
                   </div>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>{topic.mentions.toLocaleString()} mentions</span>
-                    <span>Districts: {topic.districts.join(', ')}</span>
+                    <span>Constituencies: {topic.constituencies.join(', ')}</span>
                   </div>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${
@@ -135,11 +135,11 @@ export default function BreakingNews() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-warning" />
-          <span>Escalate to CM Office</span>
+          <span>Escalate to Leader Office</span>
         </Button>
         <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2">
           <MapPin className="w-5 h-5" />
-          <span>Notify District Collectors</span>
+          <span>Notify Constituency Coordinators</span>
         </Button>
         <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2">
           <Bell className="w-5 h-5" />

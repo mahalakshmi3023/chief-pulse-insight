@@ -24,7 +24,7 @@ export default function PolicyImpact() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Policy Impact</h1>
-          <p className="text-sm text-muted-foreground mt-1">Measure scheme effectiveness</p>
+          <p className="text-sm text-muted-foreground mt-1">Measure initiative effectiveness in Puducherry</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Compare to last year</span>
@@ -32,7 +32,7 @@ export default function PolicyImpact() {
         </div>
       </div>
 
-      <Panel title="Schemes Performance" subtitle="Impact scores and sentiment changes">
+      <Panel title="Initiatives Performance" subtitle="Impact scores and sentiment changes">
         <div className="space-y-4">
           {schemes.map((scheme) => (
             <div key={scheme.id} className="p-4 rounded-xl bg-muted/30 border border-border">

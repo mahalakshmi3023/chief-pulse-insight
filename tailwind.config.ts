@@ -110,12 +110,12 @@ export default {
         'soft': '0 2px 8px -2px hsl(0 0% 0% / 0.2)',
         'medium': '0 8px 24px -8px hsl(0 0% 0% / 0.3)',
         'large': '0 16px 48px -16px hsl(0 0% 0% / 0.4)',
-        'glow-sm': '0 0 20px hsl(270 70% 60% / 0.3)',
-        'glow-md': '0 0 30px hsl(270 70% 60% / 0.4)',
-        'glow-lg': '0 0 50px hsl(270 70% 60% / 0.5)',
-        'glow-success': '0 0 20px hsl(150 80% 50% / 0.4)',
-        'glow-warning': '0 0 20px hsl(45 95% 55% / 0.4)',
-        'glow-danger': '0 0 20px hsl(0 72% 55% / 0.4)',
+        'glow-sm': '0 0 20px hsl(0 78% 41% / 0.3)',
+        'glow-md': '0 0 30px hsl(0 78% 41% / 0.4)',
+        'glow-lg': '0 0 50px hsl(0 78% 41% / 0.5)',
+        'glow-success': '0 0 20px hsl(150 70% 45% / 0.4)',
+        'glow-warning': '0 0 20px hsl(45 95% 50% / 0.4)',
+        'glow-danger': '0 0 20px hsl(0 72% 50% / 0.4)',
       },
       keyframes: {
         "accordion-down": {
@@ -131,8 +131,8 @@ export default {
           "50%": { opacity: "0.5" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(270 70% 60% / 0.3)" },
-          "50%": { boxShadow: "0 0 30px hsl(270 70% 60% / 0.6)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(0 78% 41% / 0.3)" },
+          "50%": { boxShadow: "0 0 30px hsl(0 78% 41% / 0.6)" },
         },
         "float": {
           "0%, 100%": { transform: "translateY(0px)" },
