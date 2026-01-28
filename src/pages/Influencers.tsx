@@ -15,9 +15,9 @@ export default function Influencers() {
 
   // Mock debate topics data
   const debateTopics = [
-    { topic: 'Water Crisis', frequency: 45 },
-    { topic: 'Opposition Criticism', frequency: 38 },
-    { topic: 'Government Schemes', frequency: 32 },
+    { topic: 'Water Supply', frequency: 42 },
+    { topic: 'Tourism Development', frequency: 38 },
+    { topic: 'Leadership Initiatives', frequency: 35 },
     { topic: 'Employment', frequency: 28 },
     { topic: 'Infrastructure', frequency: 22 },
   ];
@@ -26,8 +26,8 @@ export default function Influencers() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Influencers & Media Bias</h1>
-        <p className="text-sm text-muted-foreground mt-1">Track key voices and media sentiment patterns</p>
+        <h1 className="text-2xl font-semibold text-foreground">Influencers & Media Coverage</h1>
+        <p className="text-sm text-muted-foreground mt-1">Track key voices and media sentiment patterns in Puducherry</p>
       </div>
 
       {/* Influencer Impact Tracker */}
@@ -45,10 +45,10 @@ export default function Influencers() {
               <span className="capitalize text-sm">{item.platform}</span>
             )},
             { key: 'followers', header: 'Followers', className: 'hidden md:table-cell', render: (item) => (
-              <span>{(item.followers / 1000000).toFixed(1)}M</span>
+              <span>{(item.followers / 1000).toFixed(0)}K</span>
             )},
             { key: 'reach', header: 'Reach', render: (item) => (
-              <span className="font-medium">{(item.reach / 1000000).toFixed(1)}M</span>
+              <span className="font-medium">{(item.reach / 1000).toFixed(0)}K</span>
             )},
             { key: 'engagement', header: 'Engagement', className: 'hidden lg:table-cell', render: (item) => (
               <span>{item.engagement}%</span>
@@ -98,7 +98,7 @@ export default function Influencers() {
           <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-border">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-success" />
-              <span className="text-xs text-muted-foreground">Pro-Government</span>
+              <span className="text-xs text-muted-foreground">Pro-Leader</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-muted-foreground" />
@@ -106,13 +106,13 @@ export default function Influencers() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-destructive" />
-              <span className="text-xs text-muted-foreground">Anti-Government</span>
+              <span className="text-xs text-muted-foreground">Anti-Leader</span>
             </div>
           </div>
         </Panel>
 
         {/* TV Debate Topics */}
-        <Panel title="TV Debate Topics" subtitle="Most discussed topics this week">
+        <Panel title="Media Debate Topics" subtitle="Most discussed topics this week">
           <div className="space-y-4">
             {debateTopics.map((topic, idx) => (
               <div key={idx} className="flex items-center gap-4">
@@ -181,7 +181,7 @@ export default function Influencers() {
         <div className="p-4 rounded-xl bg-success/10 border border-success/20">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-4 h-4 text-success" />
-            <span className="text-xs text-muted-foreground uppercase">Pro-Govt Voices</span>
+            <span className="text-xs text-muted-foreground uppercase">Pro-Leader Voices</span>
           </div>
           <p className="text-2xl font-bold text-success">
             {influencers.filter(i => i.alignment === 'pro').length}
@@ -199,7 +199,7 @@ export default function Influencers() {
         <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-4 h-4 text-destructive rotate-180" />
-            <span className="text-xs text-muted-foreground uppercase">Anti-Govt Voices</span>
+            <span className="text-xs text-muted-foreground uppercase">Anti-Leader Voices</span>
           </div>
           <p className="text-2xl font-bold text-destructive">
             {influencers.filter(i => i.alignment === 'anti').length}

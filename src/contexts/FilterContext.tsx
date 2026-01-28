@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+// Puducherry Leader Dashboard - Filter Context
+
 interface FilterState {
   timeRange: '1h' | '6h' | '24h' | '7d' | '30d';
-  district: string;
+  constituency: string;
+  district: string; // alias for backward compatibility
   topic: string;
   source: string;
-  language: 'all' | 'tamil' | 'english';
+  language: 'all' | 'tamil' | 'english' | 'french';
 }
 
 interface FilterContextType {
@@ -17,6 +20,7 @@ interface FilterContextType {
 
 const defaultFilters: FilterState = {
   timeRange: '24h',
+  constituency: 'all',
   district: 'all',
   topic: 'all',
   source: 'all',

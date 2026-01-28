@@ -9,7 +9,7 @@ export default function Admin() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Admin</h1>
-        <p className="text-sm text-muted-foreground mt-1">Role management and permissions</p>
+        <p className="text-sm text-muted-foreground mt-1">Role management and permissions for Puducherry Leader Dashboard</p>
       </div>
 
       <Panel title="Roles" subtitle="User access levels">

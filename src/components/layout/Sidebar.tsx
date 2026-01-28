@@ -11,7 +11,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -23,13 +23,13 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { path: '/', icon: Home, label: 'CM Home', description: 'Morning Briefing' },
+  { path: '/', icon: Home, label: 'Leader Briefing', description: 'Daily Overview' },
   { path: '/trends', icon: TrendingUp, label: 'Trends', description: 'Hashtags & Issues' },
-  { path: '/sentiment', icon: Heart, label: 'Sentiment', description: 'Emotion Analysis' },
-  { path: '/breaking', icon: AlertTriangle, label: 'Breaking News', description: 'Crisis Monitor' },
+  { path: '/sentiment', icon: Heart, label: 'Sentiment', description: 'Constituency Analysis' },
+  { path: '/breaking', icon: AlertTriangle, label: 'Breaking Alerts', description: 'Crisis Monitor' },
   { path: '/misinfo', icon: ShieldAlert, label: 'Misinformation', description: 'Claim Tracker' },
-  { path: '/influencers', icon: Users, label: 'Influencers', description: 'Media Bias' },
-  { path: '/policy', icon: BarChart3, label: 'Policy Impact', description: 'Scheme Analysis' },
+  { path: '/influencers', icon: Users, label: 'Influencers', description: 'Media Coverage' },
+  { path: '/policy', icon: BarChart3, label: 'Policy Impact', description: 'Initiative Analysis' },
   { path: '/reports', icon: FileText, label: 'Reports', description: 'Daily & Weekly' },
   { path: '/admin', icon: Settings, label: 'Admin', description: 'Settings & Roles' },
 ];
@@ -45,7 +45,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           collapsed ? "w-[68px]" : "w-60"
         )}
         style={{
-          background: 'linear-gradient(180deg, hsl(240 10% 6%) 0%, hsl(240 10% 4%) 100%)'
+          background: 'linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 7%) 100%)'
         }}
       >
         {/* Logo */}
@@ -55,14 +55,14 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             collapsed ? "justify-center" : ""
           )}>
             <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-chart-4 flex items-center justify-center shadow-glow-sm">
-                <Zap className="w-5 h-5 text-primary-foreground" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-glow-sm">
+                <Crown className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-success animate-pulse border-2 border-sidebar" />
             </div>
             {!collapsed && (
               <div className="overflow-hidden">
-                <h1 className="text-sm font-bold gradient-text">TN CM</h1>
+                <h1 className="text-sm font-bold gradient-text">Leader</h1>
                 <p className="text-[10px] text-muted-foreground">Intelligence</p>
               </div>
             )}
@@ -162,7 +162,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 <div className="relative">
                   <div className="w-2 h-2 rounded-full bg-success animate-pulse-subtle" />
                 </div>
-                <span>Live · Updated 2m ago</span>
+                <span>Live · Puducherry</span>
               </div>
             )}
             {collapsed && (

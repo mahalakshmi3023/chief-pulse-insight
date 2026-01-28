@@ -23,7 +23,7 @@ export function BreakingTicker() {
     <div 
       className="relative overflow-hidden border-b border-border/50"
       style={{
-        background: 'linear-gradient(90deg, hsl(270 50% 10%) 0%, hsl(240 10% 6%) 50%, hsl(270 50% 10%) 100%)'
+        background: 'linear-gradient(90deg, hsl(0 60% 12%) 0%, hsl(222 47% 11%) 50%, hsl(0 60% 12%) 100%)'
       }}
     >
       <div className="max-w-[1600px] mx-auto flex items-center gap-4 py-2.5 px-4">

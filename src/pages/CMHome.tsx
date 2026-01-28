@@ -3,8 +3,8 @@ import { KPICard } from '@/components/dashboard/KPICard';
 import { Panel } from '@/components/dashboard/Panel';
 import { HashtagDrawer } from '@/components/dashboard/HashtagDrawer';
 import { TrendBadge, AlignmentBadge } from '@/components/dashboard/Badges';
-import { kpiData, hashtags, districts, topics, influencers, schemes, emotionsSeries, breakingNews } from '@/data/mockData';
-import { Activity, AlertTriangle, ShieldAlert, TrendingUp, Users, BarChart3, Zap, Clock, ArrowRight, Sparkles } from 'lucide-react';
+import { kpiData, hashtags, constituencies, topics, influencers, schemes, emotionsSeries, breakingNews } from '@/data/mockData';
+import { Activity, AlertTriangle, ShieldAlert, TrendingUp, Users, BarChart3, Crown, Clock, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid } from 'recharts';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -63,8 +63,8 @@ export default function CMHome() {
 
   // Recent activities
   const recentActivities = [
-    { id: 1, action: 'Crisis alert for', target: 'Chennai floods', time: '3m ago', type: 'alert' },
-    { id: 2, action: 'Sentiment spike in', target: 'Coimbatore', time: '15m ago', type: 'info' },
+    { id: 1, action: 'Crisis alert for', target: 'Coastal flooding', time: '3m ago', type: 'alert' },
+    { id: 2, action: 'Sentiment spike in', target: 'Ozhukarai', time: '15m ago', type: 'info' },
     { id: 3, action: 'New misinformation claim', target: 'verified', time: '1h ago', type: 'warning' },
     { id: 4, action: 'Report generated for', target: 'Weekly Summary', time: '2h ago', type: 'success' },
   ];
@@ -75,7 +75,7 @@ export default function CMHome() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-foreground">Good Morning, Chief Minister</h1>
+            <h1 className="text-2xl font-bold text-foreground">Good Morning, Leader</h1>
             <Badge variant="outline" className="bg-success/10 text-success border-success/30 gap-1">
               <Sparkles className="w-3 h-3" />
               Live
@@ -146,32 +146,32 @@ export default function CMHome() {
               <AreaChart data={trendData}>
                 <defs>
                   <linearGradient id="colorHigh" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(270 70% 60%)" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="hsl(270 70% 60%)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(0 78% 41%)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="hsl(0 78% 41%)" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorLow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(150 80% 50%)" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="hsl(150 80% 50%)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(150 70% 45%)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(150 70% 45%)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(240 10% 18%)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(222 47% 22%)" vertical={false} />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fontSize: 11, fill: 'hsl(0 0% 55%)' }} 
-                  stroke="hsl(240 10% 18%)"
+                  tick={{ fontSize: 11, fill: 'hsl(0 0% 60%)' }} 
+                  stroke="hsl(222 47% 22%)"
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis 
-                  tick={{ fontSize: 11, fill: 'hsl(0 0% 55%)' }} 
-                  stroke="hsl(240 10% 18%)"
+                  tick={{ fontSize: 11, fill: 'hsl(0 0% 60%)' }} 
+                  stroke="hsl(222 47% 22%)"
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'hsl(240 10% 10%)', 
-                    border: '1px solid hsl(240 10% 20%)',
+                    backgroundColor: 'hsl(222 47% 13%)', 
+                    border: '1px solid hsl(222 47% 22%)',
                     borderRadius: '12px',
                     fontSize: '12px',
                     boxShadow: '0 10px 40px -10px rgba(0,0,0,0.5)'
@@ -180,14 +180,14 @@ export default function CMHome() {
                 <Area 
                   type="monotone" 
                   dataKey="high" 
-                  stroke="hsl(270 70% 60%)" 
+                  stroke="hsl(0 78% 41%)" 
                   strokeWidth={2}
                   fill="url(#colorHigh)" 
                 />
                 <Area 
                   type="monotone" 
                   dataKey="low" 
-                  stroke="hsl(150 80% 50%)" 
+                  stroke="hsl(150 70% 45%)" 
                   strokeWidth={2}
                   fill="url(#colorLow)" 
                 />
@@ -238,8 +238,8 @@ export default function CMHome() {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-chart-4 flex items-center justify-center animate-float">
-                  <Zap className="w-8 h-8 text-primary-foreground" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center animate-float">
+                  <Crown className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-success flex items-center justify-center text-[10px] font-bold text-success-foreground">
                   ↑
@@ -247,15 +247,15 @@ export default function CMHome() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total Mentions</p>
-                <p className="text-3xl font-bold text-foreground">57,985<span className="text-sm text-muted-foreground">.07</span></p>
+                <p className="text-3xl font-bold text-foreground">42,156<span className="text-sm text-muted-foreground">.07</span></p>
                 <Badge variant="outline" className="text-success border-success/30 bg-success/10 text-xs mt-1">
-                  +0.14% ↑
+                  +3.14% ↑
                 </Badge>
               </div>
             </div>
             <div className="pt-4 border-t border-border/50">
               <p className="text-xs text-muted-foreground mb-1">Critical Issues</p>
-              <p className="text-2xl font-bold text-foreground">28,374<span className="text-sm text-muted-foreground">.12</span></p>
+              <p className="text-2xl font-bold text-foreground">8,374<span className="text-sm text-muted-foreground">.12</span></p>
               <Badge variant="outline" className="text-destructive border-destructive/30 bg-destructive/10 text-xs mt-1">
                 +0.91% ↑
               </Badge>
@@ -270,28 +270,28 @@ export default function CMHome() {
               <BarChart data={barChartData}>
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(150 80% 60%)" />
-                    <stop offset="100%" stopColor="hsl(150 80% 40%)" />
+                    <stop offset="0%" stopColor="hsl(150 70% 55%)" />
+                    <stop offset="100%" stopColor="hsl(150 70% 35%)" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(240 10% 18%)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(222 47% 22%)" vertical={false} />
                 <XAxis 
                   dataKey="name" 
-                  tick={{ fontSize: 10, fill: 'hsl(0 0% 55%)' }} 
-                  stroke="hsl(240 10% 18%)"
+                  tick={{ fontSize: 10, fill: 'hsl(0 0% 60%)' }} 
+                  stroke="hsl(222 47% 22%)"
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis 
-                  tick={{ fontSize: 10, fill: 'hsl(0 0% 55%)' }} 
-                  stroke="hsl(240 10% 18%)"
+                  tick={{ fontSize: 10, fill: 'hsl(0 0% 60%)' }} 
+                  stroke="hsl(222 47% 22%)"
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'hsl(240 10% 10%)', 
-                    border: '1px solid hsl(240 10% 20%)',
+                    backgroundColor: 'hsl(222 47% 13%)', 
+                    border: '1px solid hsl(222 47% 22%)',
                     borderRadius: '12px',
                     fontSize: '12px',
                   }} 
@@ -305,15 +305,15 @@ export default function CMHome() {
         {/* Participants */}
         <Panel title="Key Stakeholders" subtitle="Team members online">
           <div className="flex -space-x-3 mb-4">
-            {['CM', 'CS', 'MC', 'DC', 'AN'].map((initials, idx) => (
+            {['LDR', 'CS', 'MC', 'CC', 'AN'].map((initials, idx) => (
               <Avatar key={idx} className="w-10 h-10 border-2 border-card">
-                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-chart-4/20 text-foreground text-xs font-semibold">
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary-glow/20 text-foreground text-xs font-semibold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
             ))}
             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground border-2 border-card">
-              +25
+              +18
             </div>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
@@ -352,21 +352,21 @@ export default function CMHome() {
           </div>
         </Panel>
 
-        {/* District Mood Map */}
-        <Panel title="District Sentiment" subtitle="Real-time mood across Tamil Nadu">
+        {/* Constituency Mood Map */}
+        <Panel title="Constituency Sentiment" subtitle="Real-time mood across Puducherry">
           <div className="grid grid-cols-3 gap-2">
-            {districts.slice(0, 12).map((district) => {
-              const sentiment = district.sentiment;
+            {constituencies.slice(0, 12).map((constituency) => {
+              const sentiment = constituency.sentiment;
               const bgColor = sentiment > 50 ? 'bg-success/10 hover:bg-success/20' : sentiment > 30 ? 'bg-warning/10 hover:bg-warning/20' : 'bg-destructive/10 hover:bg-destructive/20';
               const textColor = sentiment > 50 ? 'text-success' : sentiment > 30 ? 'text-warning' : 'text-destructive';
               const borderColor = sentiment > 50 ? 'border-success/30' : sentiment > 30 ? 'border-warning/30' : 'border-destructive/30';
               
               return (
                 <div 
-                  key={district.id} 
+                  key={constituency.id} 
                   className={`p-3 rounded-xl border ${bgColor} ${borderColor} cursor-pointer transition-all hover:scale-105`}
                 >
-                  <p className="text-xs font-medium text-foreground truncate">{district.name}</p>
+                  <p className="text-xs font-medium text-foreground truncate">{constituency.name}</p>
                   <p className={`text-xl font-bold ${textColor}`}>{sentiment}%</p>
                 </div>
               );
@@ -427,7 +427,7 @@ export default function CMHome() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{inf.name}</p>
-                    <p className="text-xs text-muted-foreground">{(inf.reach / 1000000).toFixed(1)}M reach</p>
+                    <p className="text-xs text-muted-foreground">{(inf.reach / 1000).toFixed(0)}K reach</p>
                   </div>
                 </div>
                 <AlignmentBadge alignment={inf.alignment} />
@@ -437,7 +437,7 @@ export default function CMHome() {
         </Panel>
 
         {/* Policy Impact Snapshot */}
-        <Panel title="Policy Impact" subtitle="Scheme performance" gradient>
+        <Panel title="Policy Impact" subtitle="Initiative performance" gradient>
           {topScheme && (
             <div className="space-y-4">
               <div>
@@ -471,32 +471,32 @@ export default function CMHome() {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={emotionChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240 10% 18%)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222 47% 22%)" vertical={false} />
               <XAxis 
                 dataKey="time" 
-                tick={{ fontSize: 11, fill: 'hsl(0 0% 55%)' }} 
-                stroke="hsl(240 10% 18%)"
+                tick={{ fontSize: 11, fill: 'hsl(0 0% 60%)' }} 
+                stroke="hsl(222 47% 22%)"
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis 
-                tick={{ fontSize: 11, fill: 'hsl(0 0% 55%)' }} 
-                stroke="hsl(240 10% 18%)"
+                tick={{ fontSize: 11, fill: 'hsl(0 0% 60%)' }} 
+                stroke="hsl(222 47% 22%)"
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(240 10% 10%)', 
-                  border: '1px solid hsl(240 10% 20%)',
+                  backgroundColor: 'hsl(222 47% 13%)', 
+                  border: '1px solid hsl(222 47% 22%)',
                   borderRadius: '12px',
                   fontSize: '12px',
                 }} 
               />
-              <Line type="monotone" dataKey="Anger" stroke="hsl(0 84% 60%)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Fear" stroke="hsl(280 60% 60%)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Hope" stroke="hsl(150 80% 55%)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Trust" stroke="hsl(215 90% 60%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Anger" stroke="hsl(0 84% 55%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Fear" stroke="hsl(280 60% 55%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Hope" stroke="hsl(150 70% 50%)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Trust" stroke="hsl(215 80% 55%)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
