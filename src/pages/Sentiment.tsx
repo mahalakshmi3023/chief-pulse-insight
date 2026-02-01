@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Panel } from '@/components/dashboard/Panel';
-import { sentimentSeries, emotionsSeries, districts } from '@/data/mockData';
+import { sentimentSeries, emotionsSeries, constituencies, Constituency } from '@/data/mockData';
+import { useLiveData } from '@/hooks/useLiveData';
+import { useFilters } from '@/contexts/FilterContext';
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, BarChart, Bar } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { CountUp } from '@/components/AnimatedNumber';
-import { Heart, TrendingUp, TrendingDown, MapPin, Users, AlertCircle, ThumbsUp, ThumbsDown, Minus, Smile, Frown, Meh, Zap, Activity, Target, ChevronRight, Sparkles } from 'lucide-react';
+import { Heart, TrendingUp, TrendingDown, MapPin, Users, AlertCircle, ThumbsUp, ThumbsDown, Minus, Smile, Frown, Meh, Zap, Activity, Target, ChevronRight, Sparkles, Radio, RefreshCw } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export default function Sentiment() {
-  const [selectedDistrict, setSelectedDistrict] = useState<typeof districts[0] | null>(null);
+  const { data, lastUpdate, isLive, setIsLive, refresh } = useLiveData(30000);
+  const { filters } = useFilters();
+  const [selectedConstituency, setSelectedConstituency] = useState<typeof constituencies[0] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [hoveredDistrict, setHoveredDistrict] = useState<string | null>(null);
+  const [hoveredConstituency, setHoveredConstituency] = useState<string | null>(null);
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
 
   // Calculate average sentiment
@@ -59,10 +63,10 @@ export default function Sentiment() {
     Trust: d.trust,
   }));
 
-  // District data sorted by sentiment
-  const sortedDistricts = [...districts].sort((a, b) => b.sentiment - a.sentiment);
-  const topDistricts = sortedDistricts.slice(0, 5);
-  const bottomDistricts = sortedDistricts.slice(-5).reverse();
+  // Constituency data sorted by sentiment - using live data
+  const sortedConstituencies = [...data.constituencies].sort((a, b) => b.sentiment - a.sentiment);
+  const topConstituencies = sortedConstituencies.slice(0, 5);
+  const bottomConstituencies = sortedConstituencies.slice(-5).reverse();
 
   // Animation variants
   const containerVariants = {
@@ -92,8 +96,8 @@ export default function Sentiment() {
     })
   };
 
-  const handleDistrictClick = (district: typeof districts[0]) => {
-    setSelectedDistrict(district);
+  const handleConstituencyClick = (constituency: typeof constituencies[0]) => {
+    setSelectedConstituency(constituency);
     setDialogOpen(true);
   };
 
@@ -112,8 +116,26 @@ export default function Sentiment() {
               <Heart className="w-6 h-6 text-primary" />
               Sentiment & Emotion
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">Statewide public mood analysis</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Puducherry constituency-wide mood analysis
+              {filters.constituency !== 'all' && (
+                <Badge variant="outline" className="ml-2 text-xs">
+                  {constituencies.find(c => c.id === filters.constituency)?.name}
+                </Badge>
+              )}
+            </p>
           </div>
+          
+          {/* Live Toggle */}
+          <Button 
+            variant={isLive ? "default" : "outline"} 
+            size="sm" 
+            className="gap-2"
+            onClick={() => setIsLive(!isLive)}
+          >
+            {isLive ? <Radio className="w-3 h-3 animate-pulse" /> : <RefreshCw className="w-3 h-3" />}
+            {isLive ? 'Live' : 'Paused'}
+          </Button>
           
           {/* Quick Sentiment Stats */}
           <div className="flex items-center gap-3">
@@ -423,10 +445,10 @@ export default function Sentiment() {
           }
         >
           <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-            {districts.map((district, index) => {
-              const sentiment = district.sentiment;
-              const isHovered = hoveredDistrict === district.id;
-              const isSelected = selectedDistrict?.id === district.id;
+            {data.constituencies.map((constituency, index) => {
+              const sentiment = constituency.sentiment;
+              const isHovered = hoveredConstituency === constituency.id;
+              const isSelected = selectedConstituency?.id === constituency.id;
               
               const getBgClass = () => {
                 if (sentiment > 50) return 'bg-gradient-to-br from-success/20 to-success/5';
@@ -448,10 +470,10 @@ export default function Sentiment() {
               
               return (
                 <motion.button
-                  key={district.id}
-                  onClick={() => handleDistrictClick(district)}
-                  onMouseEnter={() => setHoveredDistrict(district.id)}
-                  onMouseLeave={() => setHoveredDistrict(null)}
+                  key={constituency.id}
+                  onClick={() => handleConstituencyClick(constituency)}
+                  onMouseEnter={() => setHoveredConstituency(constituency.id)}
+                  onMouseLeave={() => setHoveredConstituency(null)}
                   className={`
                     relative p-4 rounded-xl ${getBgClass()} transition-all text-left overflow-hidden
                     border ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-transparent'}
@@ -476,7 +498,7 @@ export default function Sentiment() {
                   
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium text-foreground truncate">{district.name}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{constituency.name}</p>
                       {getIcon()}
                     </div>
                     <p className={`text-2xl font-bold ${getTextClass()}`}>
@@ -506,33 +528,33 @@ export default function Sentiment() {
         </Panel>
       </motion.div>
 
-      {/* Top/Bottom Districts Comparison */}
+      {/* Top/Bottom Constituencies Comparison */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Performing */}
         <motion.div variants={cardVariants}>
           <Panel 
-            title="Top Performing Districts" 
+            title="Top Performing Constituencies" 
             subtitle="Highest positive sentiment"
             action={<ThumbsUp className="w-4 h-4 text-success" />}
           >
             <div className="space-y-3">
-              {topDistricts.map((district, index) => (
+              {topConstituencies.map((constituency, index) => (
                 <motion.div 
-                  key={district.id}
+                  key={constituency.id}
                   className="flex items-center gap-4 p-3 rounded-xl bg-success/5 hover:bg-success/10 transition-colors cursor-pointer group"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  onClick={() => handleDistrictClick(district)}
+                  onClick={() => handleConstituencyClick(constituency)}
                 >
                   <div className="w-8 h-8 rounded-lg bg-success/20 flex items-center justify-center text-success font-bold text-sm">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">{district.name}</p>
+                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">{constituency.name}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Progress value={district.sentiment} className="h-1.5 flex-1" />
-                      <span className="text-sm font-semibold text-success">{district.sentiment}%</span>
+                      <Progress value={constituency.sentiment} className="h-1.5 flex-1" />
+                      <span className="text-sm font-semibold text-success">{constituency.sentiment}%</span>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -545,28 +567,28 @@ export default function Sentiment() {
         {/* Bottom Performing */}
         <motion.div variants={cardVariants}>
           <Panel 
-            title="Districts Needing Attention" 
+            title="Constituencies Needing Attention" 
             subtitle="Lowest positive sentiment"
             action={<AlertCircle className="w-4 h-4 text-destructive" />}
           >
             <div className="space-y-3">
-              {bottomDistricts.map((district, index) => (
+              {bottomConstituencies.map((constituency, index) => (
                 <motion.div 
-                  key={district.id}
+                  key={constituency.id}
                   className="flex items-center gap-4 p-3 rounded-xl bg-destructive/5 hover:bg-destructive/10 transition-colors cursor-pointer group"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  onClick={() => handleDistrictClick(district)}
+                  onClick={() => handleConstituencyClick(constituency)}
                 >
                   <div className="w-8 h-8 rounded-lg bg-destructive/20 flex items-center justify-center text-destructive font-bold text-sm">
-                    {districts.length - bottomDistricts.length + index + 1}
+                    {data.constituencies.length - bottomConstituencies.length + index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">{district.name}</p>
+                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">{constituency.name}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Progress value={district.sentiment} className="h-1.5 flex-1" />
-                      <span className="text-sm font-semibold text-destructive">{district.sentiment}%</span>
+                      <Progress value={constituency.sentiment} className="h-1.5 flex-1" />
+                      <span className="text-sm font-semibold text-destructive">{constituency.sentiment}%</span>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -577,13 +599,13 @@ export default function Sentiment() {
         </motion.div>
       </div>
 
-      {/* District Drill-Down Dialog */}
+      {/* Constituency Drill-Down Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-primary" />
-              {selectedDistrict?.name} District
+              {selectedConstituency?.name} Constituency
             </DialogTitle>
             <DialogDescription>
               Detailed sentiment and demographic breakdown
@@ -609,7 +631,7 @@ export default function Sentiment() {
                     <Users className="w-4 h-4 text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">Population</p>
                   </div>
-                  <p className="text-xl font-bold">{selectedDistrict?.population.toLocaleString()}</p>
+                  <p className="text-xl font-bold">{selectedConstituency?.population.toLocaleString()}</p>
                 </motion.div>
                 <motion.div 
                   className="p-4 rounded-xl bg-success/10"
@@ -621,7 +643,7 @@ export default function Sentiment() {
                     <ThumbsUp className="w-4 h-4 text-success" />
                     <p className="text-xs text-success/70">Positive Sentiment</p>
                   </div>
-                  <p className="text-xl font-bold text-success">{selectedDistrict?.sentiment}%</p>
+                  <p className="text-xl font-bold text-success">{selectedConstituency?.sentiment}%</p>
                 </motion.div>
                 <motion.div 
                   className="p-4 rounded-xl bg-primary/10"
@@ -634,7 +656,7 @@ export default function Sentiment() {
                     <p className="text-xs text-primary/70">Trust Index</p>
                   </div>
                   <p className="text-xl font-bold text-primary">
-                    {Math.round((selectedDistrict?.sentiment || 0) * 0.85 + 10)}%
+                    {Math.round((selectedConstituency?.sentiment || 0) * 0.85 + 10)}%
                   </p>
                 </motion.div>
               </div>
