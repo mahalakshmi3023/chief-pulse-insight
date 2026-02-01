@@ -36,8 +36,9 @@ interface FilterPreset {
 
 const presets: FilterPreset[] = [
   { id: 'p1', name: 'Crisis Mode', filters: { timeRange: '1h', severity: ['critical', 'high'] } },
-  { id: 'p2', name: 'Chennai Focus', filters: { district: 'che', timeRange: '24h' } },
-  { id: 'p3', name: 'Social Media Only', filters: { source: ['Twitter/X', 'Facebook', 'Instagram'] } },
+  { id: 'p2', name: 'Ozhukarai Focus', filters: { district: 'oza', timeRange: '24h' } },
+  { id: 'p3', name: 'Karaikal Region', filters: { district: 'kar', timeRange: '24h' } },
+  { id: 'p4', name: 'Social Media Only', filters: { source: ['Twitter/X', 'Facebook', 'Instagram'] } },
 ];
 
 const timeRanges = [
@@ -225,12 +226,12 @@ export function FilterPanel() {
 
             {/* Accordion Filters */}
             <Accordion type="multiple" className="space-y-2">
-              {/* Districts */}
-              <AccordionItem value="districts" className="border border-border/50 rounded-xl px-4">
+              {/* Constituencies */}
+              <AccordionItem value="constituencies" className="border border-border/50 rounded-xl px-4">
                 <AccordionTrigger className="py-3 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    <span>Districts</span>
+                    <span>Constituencies</span>
                     {selectedDistricts.length > 0 && (
                       <Badge variant="secondary" className="text-xs">
                         {selectedDistricts.length}

@@ -1,12 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Panel } from '@/components/dashboard/Panel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { HashtagDrawer } from '@/components/dashboard/HashtagDrawer';
 import { TrendBadge } from '@/components/dashboard/Badges';
-import { hashtags, topics, districts } from '@/data/mockData';
+import { topics, constituencies, hashtags as baseHashtags, Hashtag } from '@/data/mockData';
+import { useLiveData } from '@/hooks/useLiveData';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { Search, TrendingUp, Image, ArrowUp, ArrowDown, Hash, Eye, Sparkles, Filter, Play, ExternalLink, Zap, Target, BarChart3 } from 'lucide-react';
+import { Search, TrendingUp, Image, ArrowUp, ArrowDown, Hash, Eye, Sparkles, Filter, Play, ExternalLink, Zap, Target, BarChart3, Radio, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { CountUp } from '@/components/AnimatedNumber';
 import { Progress } from '@/components/ui/progress';
@@ -15,9 +16,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useFilters } from '@/contexts/FilterContext';
 
 export default function Trends() {
-  const [selectedHashtag, setSelectedHashtag] = useState<typeof hashtags[0] | null>(null);
+  const { data, lastUpdate, isLive, setIsLive, refresh } = useLiveData(30000);
+  const { filters } = useFilters();
+  const [selectedHashtag, setSelectedHashtag] = useState<Hashtag | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'volume' | 'growth'>('volume');
@@ -26,21 +30,21 @@ export default function Trends() {
   const [selectedViral, setSelectedViral] = useState<number | null>(null);
   const [viralDialogOpen, setViralDialogOpen] = useState(false);
 
-  const handleHashtagClick = (hashtag: typeof hashtags[0]) => {
+  const handleHashtagClick = (hashtag: Hashtag) => {
     setSelectedHashtag(hashtag);
     setDrawerOpen(true);
   };
 
   const filteredHashtags = useMemo(() => {
-    return hashtags
+    return data.hashtags
       .filter(h => h.tag.toLowerCase().includes(search.toLowerCase()))
       .sort((a, b) => sortBy === 'volume' ? b.volume - a.volume : b.growth - a.growth);
-  }, [search, sortBy]);
+  }, [search, sortBy, data.hashtags]);
 
-  // Calculate overview stats
-  const totalVolume = hashtags.reduce((sum, h) => sum + h.volume, 0);
-  const avgGrowth = Math.round(hashtags.reduce((sum, h) => sum + h.growth, 0) / hashtags.length);
-  const topHashtag = hashtags.reduce((max, h) => h.volume > max.volume ? h : max, hashtags[0]);
+  // Calculate overview stats from live data
+  const totalVolume = data.hashtags.reduce((sum, h) => sum + h.volume, 0);
+  const avgGrowth = Math.round(data.hashtags.reduce((sum, h) => sum + h.growth, 0) / (data.hashtags.length || 1));
+  const topHashtag = data.hashtags.length > 0 ? data.hashtags.reduce((max, h) => h.volume > max.volume ? h : max, data.hashtags[0]) : { tag: '-', volume: 0 };
 
   // Enhanced trend data with more detail
   const trendData = [
@@ -56,12 +60,12 @@ export default function Trends() {
 
   // Enhanced viral content
   const viralContent = [
-    { id: 1, type: 'meme', caption: 'Water tanker reaching Kolathur be like...', engagement: '45K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 234500, shares: 12400, sentiment: 'neutral' },
-    { id: 2, type: 'video', caption: 'CM inaugurating new hospital in Madurai', engagement: '120K', platform: 'YouTube', thumbnail: '/placeholder.svg', views: 890000, shares: 45200, sentiment: 'positive' },
-    { id: 3, type: 'image', caption: 'Students enjoying breakfast scheme', engagement: '32K', platform: 'Instagram', thumbnail: '/placeholder.svg', views: 156000, shares: 8900, sentiment: 'positive' },
+    { id: 1, type: 'meme', caption: 'Water supply in Lawspet be like...', engagement: '45K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 234500, shares: 12400, sentiment: 'neutral' },
+    { id: 2, type: 'video', caption: 'Leader inaugurating new hospital in Villianur', engagement: '120K', platform: 'YouTube', thumbnail: '/placeholder.svg', views: 890000, shares: 45200, sentiment: 'positive' },
+    { id: 3, type: 'image', caption: 'Students enjoying Singapore vision benefits', engagement: '32K', platform: 'Instagram', thumbnail: '/placeholder.svg', views: 156000, shares: 8900, sentiment: 'positive' },
     { id: 4, type: 'meme', caption: 'Opposition press conference reaction', engagement: '28K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 189000, shares: 15600, sentiment: 'negative' },
-    { id: 5, type: 'video', caption: 'Free bus travel impact story', engagement: '89K', platform: 'Facebook', thumbnail: '/placeholder.svg', views: 456000, shares: 28900, sentiment: 'positive' },
-    { id: 6, type: 'image', caption: 'New metro line announcement', engagement: '18K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 98000, shares: 5600, sentiment: 'neutral' },
+    { id: 5, type: 'video', caption: 'Puducherry tourism development story', engagement: '89K', platform: 'Facebook', thumbnail: '/placeholder.svg', views: 456000, shares: 28900, sentiment: 'positive' },
+    { id: 6, type: 'image', caption: 'New beachfront project announcement', engagement: '18K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 98000, shares: 5600, sentiment: 'neutral' },
   ];
 
   // Platform distribution for pie chart
@@ -74,11 +78,11 @@ export default function Trends() {
 
   // Google Trends correlation
   const googleTrends = [
-    { topic: 'Water supply Chennai', interest: 92, change: 45, category: 'Infrastructure' },
-    { topic: 'TN government schemes', interest: 78, change: 12, category: 'Policy' },
-    { topic: 'CM MK Stalin', interest: 65, change: -5, category: 'Politics' },
-    { topic: 'AIADMK protest', interest: 54, change: 23, category: 'Politics' },
-    { topic: 'Tamil Nadu jobs', interest: 48, change: 8, category: 'Economy' },
+    { topic: 'Water supply Puducherry', interest: 92, change: 45, category: 'Infrastructure' },
+    { topic: 'Puducherry government schemes', interest: 78, change: 12, category: 'Policy' },
+    { topic: 'Singapore Puducherry vision', interest: 65, change: -5, category: 'Development' },
+    { topic: 'Puducherry tourism', interest: 54, change: 23, category: 'Tourism' },
+    { topic: 'Puducherry jobs', interest: 48, change: 8, category: 'Economy' },
   ];
 
   // Animation variants
@@ -115,11 +119,27 @@ export default function Trends() {
               <TrendingUp className="w-6 h-6 text-primary" />
               Trends
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">Real-time hashtag tracking and issue monitoring</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Real-time hashtag tracking for Puducherry
+              {filters.constituency !== 'all' && (
+                <Badge variant="outline" className="ml-2 text-xs">
+                  {constituencies.find(c => c.id === filters.constituency)?.name || filters.constituency}
+                </Badge>
+              )}
+            </p>
           </div>
           
-          {/* Quick Stats */}
+          {/* Quick Stats with Live Indicator */}
           <div className="flex items-center gap-4">
+            <Button 
+              variant={isLive ? "default" : "outline"} 
+              size="sm" 
+              className="gap-2"
+              onClick={() => setIsLive(!isLive)}
+            >
+              {isLive ? <Radio className="w-3 h-3 animate-pulse" /> : <RefreshCw className="w-3 h-3" />}
+              {isLive ? 'Live' : 'Paused'}
+            </Button>
             <div className="px-4 py-2 rounded-xl bg-card/50 backdrop-blur border border-border/50">
               <p className="text-xs text-muted-foreground">Total Volume</p>
               <p className="text-lg font-bold text-foreground">
@@ -557,11 +577,11 @@ export default function Trends() {
                 </p>
               </div>
             </TabsContent>
-            <TabsContent value="districts" className="mt-4">
+            <TabsContent value="constituencies" className="mt-4">
               <div className="grid grid-cols-3 gap-2">
-                {districts.slice(0, 9).map((d) => (
-                  <div key={d.id} className="p-3 rounded-lg bg-muted/30 text-center">
-                    <p className="text-sm font-medium">{d.name}</p>
+                {constituencies.slice(0, 9).map((c) => (
+                  <div key={c.id} className="p-3 rounded-lg bg-muted/30 text-center">
+                    <p className="text-sm font-medium">{c.name}</p>
                     <p className="text-xs text-muted-foreground">{Math.floor(Math.random() * 5000 + 1000)} mentions</p>
                   </div>
                 ))}
