@@ -29,21 +29,37 @@ Deno.serve(async (req) => {
 
     console.log('Searching:', query);
 
-    const response = await fetch('https://api.firecrawl.dev/v1/search', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        limit: options?.limit || 10,
-        lang: options?.lang || 'en',
-        country: options?.country || 'in',
-        tbs: options?.tbs,
-        scrapeOptions: options?.scrapeOptions || { formats: ['markdown'] },
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+    let response: Response;
+    try {
+      response = await fetch('https://api.firecrawl.dev/v1/search', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          limit: options?.limit || 10,
+          lang: options?.lang || 'en',
+          country: options?.country || 'in',
+          tbs: options?.tbs,
+          scrapeOptions: options?.scrapeOptions || { formats: ['markdown'] },
+        }),
+        signal: controller.signal,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      const isTimeout = fetchError instanceof DOMException && fetchError.name === 'AbortError';
+      console.error(isTimeout ? 'Request timed out after 25s' : 'Fetch error:', fetchError);
+      return new Response(
+        JSON.stringify({ success: false, error: isTimeout ? 'Request timed out' : 'Fetch failed' }),
+        { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    clearTimeout(timeoutId);
 
     const data = await response.json();
 

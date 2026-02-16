@@ -53,15 +53,26 @@ export function useFirecrawlTrends(): UseFirecrawlTrendsReturn {
     abortRef.current = false;
 
     try {
-      // Fire all queries in parallel
+      // Fire all queries in parallel with 30s timeout each
+      const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
+        Promise.race([
+          promise,
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Client timeout')), ms)
+          ),
+        ]);
+
       const results = await Promise.allSettled(
         SEARCH_QUERIES.map(query =>
-          firecrawlApi.search(query, {
-            limit: 5,
-            lang: 'en',
-            country: 'in',
-            tbs: 'qdr:w', // past week
-          })
+          withTimeout(
+            firecrawlApi.search(query, {
+              limit: 5,
+              lang: 'en',
+              country: 'in',
+              tbs: 'qdr:w',
+            }),
+            30000
+          )
         )
       );
 
