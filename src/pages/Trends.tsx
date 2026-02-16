@@ -1,26 +1,29 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Panel } from '@/components/dashboard/Panel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { HashtagDrawer } from '@/components/dashboard/HashtagDrawer';
 import { TrendBadge } from '@/components/dashboard/Badges';
-import { topics, constituencies, hashtags as baseHashtags, Hashtag } from '@/data/mockData';
+import { topics, constituencies, Hashtag } from '@/data/mockData';
 import { useLiveData } from '@/hooks/useLiveData';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { Search, TrendingUp, Image, ArrowUp, ArrowDown, Hash, Eye, Sparkles, Filter, Play, ExternalLink, Zap, Target, BarChart3, Radio, RefreshCw } from 'lucide-react';
+import { useFirecrawlTrends } from '@/hooks/useFirecrawlTrends';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Search, TrendingUp, Image, ArrowUp, Hash, Eye, Sparkles, Play, ExternalLink, Zap, Target, BarChart3, Radio, RefreshCw, Globe, Wifi, WifiOff, Loader2, Clock, LinkIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { CountUp } from '@/components/AnimatedNumber';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useFilters } from '@/contexts/FilterContext';
 
 export default function Trends() {
   const { data, lastUpdate, isLive, setIsLive, refresh } = useLiveData(30000);
   const { filters } = useFilters();
+  const firecrawl = useFirecrawlTrends();
+  
   const [selectedHashtag, setSelectedHashtag] = useState<Hashtag | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -30,23 +33,26 @@ export default function Trends() {
   const [selectedViral, setSelectedViral] = useState<number | null>(null);
   const [viralDialogOpen, setViralDialogOpen] = useState(false);
 
+  // Determine data source: use Firecrawl data if available, fallback to simulated
+  const isScrapedData = firecrawl.data.scrapedAt !== null && firecrawl.data.hashtags.length > 0;
+  const activeHashtags = isScrapedData ? firecrawl.data.hashtags : data.hashtags;
+  const activeTopics = isScrapedData ? firecrawl.data.topics : topics;
+
   const handleHashtagClick = (hashtag: Hashtag) => {
     setSelectedHashtag(hashtag);
     setDrawerOpen(true);
   };
 
   const filteredHashtags = useMemo(() => {
-    return data.hashtags
+    return activeHashtags
       .filter(h => h.tag.toLowerCase().includes(search.toLowerCase()))
       .sort((a, b) => sortBy === 'volume' ? b.volume - a.volume : b.growth - a.growth);
-  }, [search, sortBy, data.hashtags]);
+  }, [search, sortBy, activeHashtags]);
 
-  // Calculate overview stats from live data
-  const totalVolume = data.hashtags.reduce((sum, h) => sum + h.volume, 0);
-  const avgGrowth = Math.round(data.hashtags.reduce((sum, h) => sum + h.growth, 0) / (data.hashtags.length || 1));
-  const topHashtag = data.hashtags.length > 0 ? data.hashtags.reduce((max, h) => h.volume > max.volume ? h : max, data.hashtags[0]) : { tag: '-', volume: 0 };
+  const totalVolume = activeHashtags.reduce((sum, h) => sum + h.volume, 0);
+  const avgGrowth = Math.round(activeHashtags.reduce((sum, h) => sum + h.growth, 0) / (activeHashtags.length || 1));
+  const topHashtag = activeHashtags.length > 0 ? activeHashtags.reduce((max, h) => h.volume > max.volume ? h : max, activeHashtags[0]) : { tag: '-', volume: 0 };
 
-  // Enhanced trend data with more detail
   const trendData = [
     { hour: '6AM', volume: 12400, positive: 45, negative: 28, neutral: 27 },
     { hour: '8AM', volume: 28900, positive: 52, negative: 22, neutral: 26 },
@@ -58,7 +64,6 @@ export default function Trends() {
     { hour: '8PM', volume: 42300, positive: 51, negative: 25, neutral: 24 },
   ];
 
-  // Enhanced viral content
   const viralContent = [
     { id: 1, type: 'meme', caption: 'Water supply in Lawspet be like...', engagement: '45K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 234500, shares: 12400, sentiment: 'neutral' },
     { id: 2, type: 'video', caption: 'Leader inaugurating new hospital in Villianur', engagement: '120K', platform: 'YouTube', thumbnail: '/placeholder.svg', views: 890000, shares: 45200, sentiment: 'positive' },
@@ -68,7 +73,6 @@ export default function Trends() {
     { id: 6, type: 'image', caption: 'New beachfront project announcement', engagement: '18K', platform: 'Twitter', thumbnail: '/placeholder.svg', views: 98000, shares: 5600, sentiment: 'neutral' },
   ];
 
-  // Platform distribution for pie chart
   const platformData = [
     { name: 'Twitter', value: 45, color: 'hsl(var(--primary))' },
     { name: 'Facebook', value: 25, color: 'hsl(210 100% 50%)' },
@@ -76,7 +80,6 @@ export default function Trends() {
     { name: 'News', value: 10, color: 'hsl(var(--muted-foreground))' },
   ];
 
-  // Google Trends correlation
   const googleTrends = [
     { topic: 'Water supply Puducherry', interest: 92, change: 45, category: 'Infrastructure' },
     { topic: 'Puducherry government schemes', interest: 78, change: 12, category: 'Policy' },
@@ -85,32 +88,21 @@ export default function Trends() {
     { topic: 'Puducherry jobs', interest: 48, change: 8, category: 'Economy' },
   ];
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
-
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
-
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.95 },
     visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } }
   };
 
   return (
-    <motion.div 
-      className="space-y-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
       {/* Page Header with Stats */}
       <motion.div variants={itemVariants}>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -129,8 +121,37 @@ export default function Trends() {
             </p>
           </div>
           
-          {/* Quick Stats with Live Indicator */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Data Source Badge */}
+            {isScrapedData ? (
+              <Badge variant="outline" className="bg-success/10 text-success border-success/30 gap-1.5">
+                <Globe className="w-3 h-3" />
+                Live Web Data
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 gap-1.5">
+                <Wifi className="w-3 h-3" />
+                Simulated
+              </Badge>
+            )}
+
+            {/* Scrape Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-primary/30 hover:bg-primary/10"
+              onClick={firecrawl.fetchTrends}
+              disabled={firecrawl.isLoading}
+            >
+              {firecrawl.isLoading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Globe className="w-3.5 h-3.5" />
+              )}
+              {firecrawl.isLoading ? 'Scraping...' : 'Fetch Live Data'}
+            </Button>
+
+            {/* Live toggle */}
             <Button 
               variant={isLive ? "default" : "outline"} 
               size="sm" 
@@ -140,6 +161,8 @@ export default function Trends() {
               {isLive ? <Radio className="w-3 h-3 animate-pulse" /> : <RefreshCw className="w-3 h-3" />}
               {isLive ? 'Live' : 'Paused'}
             </Button>
+
+            {/* Stats */}
             <div className="px-4 py-2 rounded-xl bg-card/50 backdrop-blur border border-border/50">
               <p className="text-xs text-muted-foreground">Total Volume</p>
               <p className="text-lg font-bold text-foreground">
@@ -161,11 +184,96 @@ export default function Trends() {
         </div>
       </motion.div>
 
-      {/* Hashtag Table with Enhanced Filters */}
+      {/* Scraped Timestamp */}
+      {firecrawl.data.scrapedAt && (
+        <motion.div variants={itemVariants}>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+            <Clock className="w-3 h-3" />
+            Last scraped: {firecrawl.data.scrapedAt.toLocaleTimeString()} · {firecrawl.data.articles.length} articles found
+          </div>
+        </motion.div>
+      )}
+
+      {/* Loading Skeleton for Scraping */}
+      {firecrawl.isLoading && (
+        <motion.div variants={cardVariants}>
+          <Panel title="Scraping Live Data..." subtitle="Fetching from news sites and social platforms">
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30">
+                  <Skeleton className="w-10 h-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </motion.div>
+      )}
+
+      {/* Live News Feed from Firecrawl */}
+      {firecrawl.data.articles.length > 0 && (
+        <motion.div variants={cardVariants}>
+          <Panel 
+            title="Live News Feed" 
+            subtitle="Real articles scraped from the web"
+            action={
+              <Badge variant="outline" className="bg-success/10 text-success border-success/30 gap-1">
+                <Globe className="w-3 h-3" />
+                {firecrawl.data.articles.length} sources
+              </Badge>
+            }
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {firecrawl.data.articles.map((article, idx) => {
+                const sentimentColor = article.sentiment === 'positive' ? 'bg-success/10 border-success/20 text-success'
+                  : article.sentiment === 'negative' ? 'bg-destructive/10 border-destructive/20 text-destructive'
+                  : 'bg-muted border-border text-muted-foreground';
+
+                return (
+                  <motion.a
+                    key={idx}
+                    href={article.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block p-4 rounded-xl bg-muted/30 border border-border hover:border-primary/30 transition-all group"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        {article.title}
+                      </h4>
+                      <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{article.description}</p>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[10px] h-5 gap-1">
+                        <LinkIcon className="w-2.5 h-2.5" />
+                        {article.source}
+                      </Badge>
+                      <Badge variant="outline" className={`text-[10px] h-5 capitalize ${sentimentColor}`}>
+                        {article.sentiment}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px] h-5">{article.category}</Badge>
+                    </div>
+                  </motion.a>
+                );
+              })}
+            </div>
+          </Panel>
+        </motion.div>
+      )}
+
+      {/* Hashtag Table */}
       <motion.div variants={cardVariants}>
         <Panel 
           title="Trending Hashtags" 
-          subtitle="Live social media tracking"
+          subtitle={isScrapedData ? "Derived from scraped web data" : "Live social media tracking"}
           action={
             <div className="flex items-center gap-3">
               <Select value={sortBy} onValueChange={(v: 'volume' | 'growth') => setSortBy(v)}>
@@ -226,30 +334,10 @@ export default function Trends() {
                     { key: 'sources', header: 'Sources', className: 'hidden md:table-cell', render: (item) => (
                       <div className="flex items-center gap-1">
                         <div className="h-2.5 w-20 bg-muted rounded-full overflow-hidden flex">
-                          <motion.div 
-                            className="bg-primary h-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.sources.twitter}%` }}
-                            transition={{ delay: 0.5, duration: 0.6 }}
-                          />
-                          <motion.div 
-                            className="bg-blue-600 h-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.sources.facebook}%` }}
-                            transition={{ delay: 0.6, duration: 0.6 }}
-                          />
-                          <motion.div 
-                            className="bg-pink-500 h-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.sources.instagram}%` }}
-                            transition={{ delay: 0.7, duration: 0.6 }}
-                          />
-                          <motion.div 
-                            className="bg-muted-foreground h-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.sources.news}%` }}
-                            transition={{ delay: 0.8, duration: 0.6 }}
-                          />
+                          <motion.div className="bg-primary h-full" initial={{ width: 0 }} animate={{ width: `${item.sources.twitter}%` }} transition={{ delay: 0.5, duration: 0.6 }} />
+                          <motion.div className="bg-blue-600 h-full" initial={{ width: 0 }} animate={{ width: `${item.sources.facebook}%` }} transition={{ delay: 0.6, duration: 0.6 }} />
+                          <motion.div className="bg-pink-500 h-full" initial={{ width: 0 }} animate={{ width: `${item.sources.instagram}%` }} transition={{ delay: 0.7, duration: 0.6 }} />
+                          <motion.div className="bg-muted-foreground h-full" initial={{ width: 0 }} animate={{ width: `${item.sources.news}%` }} transition={{ delay: 0.8, duration: 0.6 }} />
                         </div>
                       </div>
                     )},
@@ -273,13 +361,12 @@ export default function Trends() {
         </Panel>
       </motion.div>
 
-      {/* Two Column Layout - Issue Clusters + Charts */}
+      {/* Issue Clusters + Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Issue Clustering */}
         <motion.div variants={cardVariants}>
           <Panel title="Issue Clusters" subtitle="Top topics by volume">
             <div className="space-y-3">
-              {topics.map((topic, index) => (
+              {activeTopics.map((topic, index) => (
                 <motion.div 
                   key={topic.id} 
                   className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-pointer group border border-transparent hover:border-primary/20"
@@ -317,7 +404,6 @@ export default function Trends() {
           </Panel>
         </motion.div>
 
-        {/* Volume Timeline Chart */}
         <motion.div variants={cardVariants} className="lg:col-span-2">
           <Panel title="Volume Timeline" subtitle="Hashtag activity with sentiment overlay">
             <div className="h-72">
@@ -329,55 +415,20 @@ export default function Trends() {
                       <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <XAxis 
-                    dataKey="hour" 
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
-                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                    tickLine={false}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
-                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                    tickLine={false}
-                    tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.3)'
-                    }}
-                    formatter={(value: number) => [value.toLocaleString(), 'Volume']}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="volume" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    fill="url(#volumeGradient)"
-                  />
+                  <XAxis dataKey="hour" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={{ stroke: 'hsl(var(--border))' }} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={{ stroke: 'hsl(var(--border))' }} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: '12px', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.3)' }} formatter={(value: number) => [value.toLocaleString(), 'Volume']} />
+                  <Area type="monotone" dataKey="volume" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#volumeGradient)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-            {/* Sentiment Distribution */}
             <div className="mt-4 pt-4 border-t border-border">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Sentiment at Peak (4PM)</span>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-success" />
-                    <span className="text-xs">58% Positive</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-                    <span className="text-xs">24% Neutral</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-destructive" />
-                    <span className="text-xs">18% Negative</span>
-                  </div>
+                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-success" /><span className="text-xs">58% Positive</span></div>
+                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-muted-foreground" /><span className="text-xs">24% Neutral</span></div>
+                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-destructive" /><span className="text-xs">18% Negative</span></div>
                 </div>
               </div>
             </div>
@@ -385,17 +436,12 @@ export default function Trends() {
         </motion.div>
       </div>
 
-      {/* Viral Content Monitor with Interactive Cards */}
+      {/* Viral Content Monitor */}
       <motion.div variants={cardVariants}>
         <Panel 
           title="Viral Content Monitor" 
           subtitle="Trending memes, videos & images"
-          action={
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-              <Zap className="w-3 h-3 mr-1" />
-              Live
-            </Badge>
-          }
+          action={<Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Zap className="w-3 h-3 mr-1" />Live</Badge>}
         >
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {viralContent.map((item, index) => (
@@ -406,10 +452,7 @@ export default function Trends() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.08 }}
                 whileHover={{ scale: 1.05, y: -4 }}
-                onClick={() => {
-                  setSelectedViral(item.id);
-                  setViralDialogOpen(true);
-                }}
+                onClick={() => { setSelectedViral(item.id); setViralDialogOpen(true); }}
               >
                 <div className="aspect-square rounded-xl bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center mb-2 relative overflow-hidden border border-border/50 group-hover:border-primary/30 transition-all">
                   {item.type === 'video' && (
@@ -420,16 +463,8 @@ export default function Trends() {
                     </div>
                   )}
                   <Image className="w-8 h-8 text-muted-foreground" />
-                  <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-                    item.sentiment === 'positive' ? 'bg-success' :
-                    item.sentiment === 'negative' ? 'bg-destructive' : 'bg-muted-foreground'
-                  }`} />
-                  <Badge 
-                    variant="secondary" 
-                    className="absolute bottom-2 left-2 text-[10px] py-0 h-5 bg-background/80 backdrop-blur"
-                  >
-                    {item.type}
-                  </Badge>
+                  <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${item.sentiment === 'positive' ? 'bg-success' : item.sentiment === 'negative' ? 'bg-destructive' : 'bg-muted-foreground'}`} />
+                  <Badge variant="secondary" className="absolute bottom-2 left-2 text-[10px] py-0 h-5 bg-background/80 backdrop-blur">{item.type}</Badge>
                 </div>
                 <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">{item.caption}</p>
                 <div className="flex items-center gap-2 mt-1">
@@ -444,33 +479,15 @@ export default function Trends() {
 
       {/* Platform Distribution + Google Trends */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Platform Distribution Pie */}
         <motion.div variants={cardVariants}>
           <Panel title="Platform Distribution" subtitle="Content source breakdown">
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={platformData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
-                    paddingAngle={4}
-                    dataKey="value"
-                  >
-                    {platformData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
+                  <Pie data={platformData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={4} dataKey="value">
+                    {platformData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }} 
-                  />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -486,9 +503,8 @@ export default function Trends() {
           </Panel>
         </motion.div>
 
-        {/* Google Trends Correlation */}
         <motion.div variants={cardVariants} className="lg:col-span-2">
-          <Panel title="Google Trends Correlation" subtitle="Search interest in Tamil Nadu">
+          <Panel title="Google Trends Correlation" subtitle="Search interest in Puducherry">
             <div className="space-y-3">
               {googleTrends.map((item, index) => (
                 <motion.div 
@@ -501,9 +517,7 @@ export default function Trends() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium text-sm truncate">{item.topic}</span>
-                      <Badge variant="outline" className="text-[10px] h-4 px-1.5">
-                        {item.category}
-                      </Badge>
+                      <Badge variant="outline" className="text-[10px] h-4 px-1.5">{item.category}</Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
@@ -517,10 +531,7 @@ export default function Trends() {
                       <span className="text-sm font-semibold w-8">{item.interest}</span>
                     </div>
                   </div>
-                  <TrendBadge 
-                    trend={item.change > 0 ? 'rising' : item.change < 0 ? 'falling' : 'stable'}
-                    value={`${item.change > 0 ? '+' : ''}${item.change}%`}
-                  />
+                  <TrendBadge trend={item.change > 0 ? 'rising' : item.change < 0 ? 'falling' : 'stable'} value={`${item.change > 0 ? '+' : ''}${item.change}%`} />
                 </motion.div>
               ))}
             </div>
@@ -529,51 +540,30 @@ export default function Trends() {
       </div>
 
       {/* Hashtag Drawer */}
-      <HashtagDrawer 
-        open={drawerOpen} 
-        onClose={() => setDrawerOpen(false)} 
-        hashtag={selectedHashtag}
-      />
+      <HashtagDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} hashtag={selectedHashtag} />
 
       {/* Topic Drill-Down Dialog */}
       <Dialog open={topicDialogOpen} onOpenChange={setTopicDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              {selectedTopic?.name}
-            </DialogTitle>
-            <DialogDescription>
-              Detailed breakdown for {selectedTopic?.category}
-            </DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><Target className="w-5 h-5 text-primary" />{selectedTopic?.name}</DialogTitle>
+            <DialogDescription>Detailed breakdown for {selectedTopic?.category}</DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="overview" className="mt-4">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="districts">Districts</TabsTrigger>
+              <TabsTrigger value="constituencies">Constituencies</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="mt-4 space-y-4">
               <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-muted/50">
-                  <p className="text-xs text-muted-foreground mb-1">Volume</p>
-                  <p className="text-2xl font-bold">{((selectedTopic?.volume || 0) / 1000).toFixed(1)}K</p>
-                </div>
-                <div className="p-4 rounded-xl bg-muted/50">
-                  <p className="text-xs text-muted-foreground mb-1">Trend</p>
-                  <TrendBadge trend={selectedTopic?.trend || 'stable'} />
-                </div>
-                <div className="p-4 rounded-xl bg-muted/50">
-                  <p className="text-xs text-muted-foreground mb-1">Category</p>
-                  <p className="font-semibold">{selectedTopic?.category}</p>
-                </div>
+                <div className="p-4 rounded-xl bg-muted/50"><p className="text-xs text-muted-foreground mb-1">Volume</p><p className="text-2xl font-bold">{((selectedTopic?.volume || 0) / 1000).toFixed(1)}K</p></div>
+                <div className="p-4 rounded-xl bg-muted/50"><p className="text-xs text-muted-foreground mb-1">Trend</p><TrendBadge trend={selectedTopic?.trend || 'stable'} /></div>
+                <div className="p-4 rounded-xl bg-muted/50"><p className="text-xs text-muted-foreground mb-1">Category</p><p className="font-semibold">{selectedTopic?.category}</p></div>
               </div>
               <div className="p-4 rounded-xl bg-muted/30">
                 <p className="text-sm text-muted-foreground">
-                  This topic has been {selectedTopic?.trend === 'rising' ? 'gaining' : 
-                  selectedTopic?.trend === 'falling' ? 'losing' : 'maintaining'} momentum over the past 24 hours.
-                  Related hashtags are showing {selectedTopic?.trend === 'rising' ? 'increased' : 
-                  selectedTopic?.trend === 'falling' ? 'decreased' : 'stable'} engagement.
+                  This topic has been {selectedTopic?.trend === 'rising' ? 'gaining' : selectedTopic?.trend === 'falling' ? 'losing' : 'maintaining'} momentum over the past 24 hours.
                 </p>
               </div>
             </TabsContent>
@@ -611,42 +601,19 @@ export default function Trends() {
             return (
               <>
                 <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    Viral Content
-                  </DialogTitle>
+                  <DialogTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />Viral Content</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
-                  <div className="aspect-video rounded-xl bg-muted flex items-center justify-center">
-                    <Image className="w-12 h-12 text-muted-foreground" />
-                  </div>
+                  <div className="aspect-video rounded-xl bg-muted flex items-center justify-center"><Image className="w-12 h-12 text-muted-foreground" /></div>
                   <p className="font-medium">{item.caption}</p>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 rounded-lg bg-muted/50 text-center">
-                      <Eye className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                      <p className="text-sm font-semibold">{(item.views / 1000).toFixed(0)}K</p>
-                      <p className="text-xs text-muted-foreground">Views</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-muted/50 text-center">
-                      <ExternalLink className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                      <p className="text-sm font-semibold">{(item.shares / 1000).toFixed(1)}K</p>
-                      <p className="text-xs text-muted-foreground">Shares</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-muted/50 text-center">
-                      <BarChart3 className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                      <p className="text-sm font-semibold">{item.engagement}</p>
-                      <p className="text-xs text-muted-foreground">Engagements</p>
-                    </div>
+                    <div className="p-3 rounded-lg bg-muted/50 text-center"><Eye className="w-4 h-4 mx-auto mb-1 text-muted-foreground" /><p className="text-sm font-semibold">{(item.views / 1000).toFixed(0)}K</p><p className="text-xs text-muted-foreground">Views</p></div>
+                    <div className="p-3 rounded-lg bg-muted/50 text-center"><ExternalLink className="w-4 h-4 mx-auto mb-1 text-muted-foreground" /><p className="text-sm font-semibold">{(item.shares / 1000).toFixed(1)}K</p><p className="text-xs text-muted-foreground">Shares</p></div>
+                    <div className="p-3 rounded-lg bg-muted/50 text-center"><BarChart3 className="w-4 h-4 mx-auto mb-1 text-muted-foreground" /><p className="text-sm font-semibold">{item.engagement}</p><p className="text-xs text-muted-foreground">Engagements</p></div>
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border">
                     <Badge variant="outline">{item.platform}</Badge>
-                    <Badge className={
-                      item.sentiment === 'positive' ? 'bg-success/10 text-success' :
-                      item.sentiment === 'negative' ? 'bg-destructive/10 text-destructive' :
-                      'bg-muted text-muted-foreground'
-                    }>
-                      {item.sentiment}
-                    </Badge>
+                    <Badge className={item.sentiment === 'positive' ? 'bg-success/10 text-success' : item.sentiment === 'negative' ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'}>{item.sentiment}</Badge>
                   </div>
                 </div>
               </>
