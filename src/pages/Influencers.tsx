@@ -2,43 +2,41 @@ import { Panel } from '@/components/dashboard/Panel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { AlignmentBadge } from '@/components/dashboard/Badges';
 import { useSocialData } from '@/contexts/SocialDataContext';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Users, TrendingUp, MessageSquare, Loader2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Users, TrendingUp, MessageSquare, RefreshCw, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Influencers() {
-  const { isLoading, influencers, mediaChannels, fetchedAt } = useSocialData();
+  const { isLoading, influencers, fetchedAt, search, query } = useSocialData();
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
-          <span className="text-muted-foreground">Loading influencer data from live APIs...</span>
+          <span className="text-muted-foreground">Loading influencer data...</span>
         </div>
         <Skeleton className="h-96 rounded-xl" />
       </div>
     );
   }
 
-  const biasChartData = mediaChannels.map(ch => ({
-    name: ch.name,
-    tilt: ch.sentimentTilt,
-    fill: ch.sentimentTilt > 0 ? 'hsl(var(--success))' : ch.sentimentTilt < 0 ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))'
-  }));
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">
-          Influencers & Media Coverage
-          <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-xs ml-3">Live API</Badge>
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">From live social media APIs · {fetchedAt?.toLocaleTimeString()}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Influencers & Voices</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Top voices from live Twitter data · {influencers.length} found
+          </p>
+        </div>
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => search(query)}>
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </Button>
       </div>
 
-      <Panel title="Influencer Impact Tracker" subtitle={`${influencers.length} influencers from live data`}>
+      <Panel title="Influencer Impact Tracker" subtitle="Top voices from live social data">
         {influencers.length > 0 ? (
           <DataTable
             data={influencers}
@@ -54,40 +52,17 @@ export default function Influencers() {
               { key: 'reach', header: 'Reach', render: (item) => <span className="font-medium">{(item.reach / 1000).toFixed(0)}K</span> },
               { key: 'engagement', header: 'Engagement', className: 'hidden lg:table-cell', render: (item) => <span>{item.engagement}%</span> },
               { key: 'alignment', header: 'Alignment', render: (item) => <AlignmentBadge alignment={item.alignment} /> },
-              { key: 'topics', header: 'Recent Topics', className: 'hidden xl:table-cell', render: (item) => (
-                <div className="flex gap-1">
-                  {item.recentTopics.slice(0, 2).map((topic, idx) => (
-                    <span key={idx} className="px-1.5 py-0.5 rounded bg-muted text-xs text-muted-foreground">{topic}</span>
-                  ))}
-                </div>
-              )},
             ]}
           />
         ) : (
-          <p className="text-sm text-muted-foreground py-8 text-center">No influencers detected from live data</p>
+          <p className="text-sm text-muted-foreground py-8 text-center">No influencer data available. Try refreshing.</p>
         )}
       </Panel>
 
-      {/* Media Bias */}
-      <Panel title="Platform Sentiment Analysis" subtitle="From live API data">
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={biasChartData} layout="vertical">
-              <XAxis type="number" domain={[-100, 100]} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-              <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={120} stroke="hsl(var(--muted-foreground))" />
-              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`${value > 0 ? '+' : ''}${value}`, 'Sentiment Tilt']} />
-              <Bar dataKey="tilt" radius={[0, 4, 4, 0]}>
-                {biasChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Panel>
-
-      {/* Stats */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-muted/30 border border-border">
-          <div className="flex items-center gap-2 mb-2"><Users className="w-4 h-4 text-muted-foreground" /><span className="text-xs text-muted-foreground uppercase">Total Influencers</span></div>
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <div className="flex items-center gap-2 mb-2"><Users className="w-4 h-4 text-muted-foreground" /><span className="text-xs text-muted-foreground uppercase">Total Found</span></div>
           <p className="text-2xl font-bold text-foreground">{influencers.length}</p>
         </div>
         <div className="p-4 rounded-xl bg-success/10 border border-success/20">
