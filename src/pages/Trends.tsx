@@ -4,7 +4,7 @@ import { Panel } from '@/components/dashboard/Panel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { HashtagDrawer } from '@/components/dashboard/HashtagDrawer';
 import { TrendBadge } from '@/components/dashboard/Badges';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Search, TrendingUp, ArrowUp, Hash, Sparkles, Target, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Trends() {
-  const { isLoading, hashtags, topics, data, search: doSearch, query, fetchedAt, allPosts, constituencies } = useSocialSearch();
+  const { isLoading, hashtags, topics, data, search: doSearch, query, fetchedAt, allPosts, constituencies } = useSocialData();
 
   const [selectedHashtag, setSelectedHashtag] = useState<typeof hashtags[0] | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);

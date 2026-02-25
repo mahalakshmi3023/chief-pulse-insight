@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { AlertTriangle, Radio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function BreakingTicker() {
-  const { breakingNews, isLoading } = useSocialSearch();
+  const { breakingNews, isLoading } = useSocialData();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const criticalNews = breakingNews.filter(n => n.severity === 'critical' || n.severity === 'high');

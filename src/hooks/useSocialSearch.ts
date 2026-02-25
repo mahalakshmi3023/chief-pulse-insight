@@ -123,7 +123,9 @@ export function useSocialSearch(autoFetch = true) {
         }
         const entry = tagMap[normalized];
         entry.volume += Math.max(1, post.likes + post.shares);
-        entry.growth += Math.random() * 20 - 5;
+        // Deterministic growth: based on engagement relative to average
+        const avgEngagement = allPosts.reduce((s, p) => s + p.likes + p.shares, 0) / (allPosts.length || 1);
+        entry.growth += ((post.likes + post.shares) - avgEngagement) / (avgEngagement || 1) * 10;
         if (post.platform === 'twitter') entry.tw++;
         else if (post.platform === 'facebook') entry.fb++;
         else if (post.platform === 'instagram') entry.ig++;
@@ -179,7 +181,7 @@ export function useSocialSearch(autoFetch = true) {
         id: `t${i}`,
         name,
         volume: d.volume,
-        trend: (Math.random() > 0.5 ? 'rising' : Math.random() > 0.5 ? 'falling' : 'stable') as Topic['trend'],
+        trend: (d.volume > 500 ? 'rising' : d.volume > 100 ? 'stable' : 'falling') as Topic['trend'],
         category: d.category,
       }));
   }, [allPosts]);
@@ -211,12 +213,16 @@ export function useSocialSearch(autoFetch = true) {
     const pP = Math.round((pos / total) * 100);
     const nP = Math.round((neg / total) * 100);
     const uP = 100 - pP - nP;
-    return hours.map((h, i) => ({
-      timestamp: `${new Date().toISOString().split('T')[0]} ${h}`,
-      positive: Math.max(5, pP + Math.round((Math.random() - 0.5) * 10)),
-      negative: Math.max(5, nP + Math.round((Math.random() - 0.5) * 8)),
-      neutral: Math.max(5, uP + Math.round((Math.random() - 0.5) * 6)),
-    }));
+    return hours.map((h, i) => {
+      // Deterministic variation based on hour index
+      const offset = (i - hours.length / 2) * 2;
+      return {
+        timestamp: `${new Date().toISOString().split('T')[0]} ${h}`,
+        positive: Math.max(5, pP + Math.round(offset * 0.5)),
+        negative: Math.max(5, nP - Math.round(offset * 0.3)),
+        neutral: Math.max(5, uP + Math.round(offset * 0.2)),
+      };
+    });
   }, [allPosts]);
 
   const deriveEmotionSeries = useCallback((): EmotionDataPoint[] => {
@@ -230,13 +236,16 @@ export function useSocialSearch(autoFetch = true) {
       if (/trust|reliable|faith|confident/.test(lower)) trust++;
     }
     const total = anger + fear + hope + trust || 1;
-    return hours.map((h) => ({
-      timestamp: `${new Date().toISOString().split('T')[0]} ${h}`,
-      anger: Math.max(5, Math.round((anger / total) * 100) + Math.round((Math.random() - 0.5) * 10)),
-      fear: Math.max(5, Math.round((fear / total) * 100) + Math.round((Math.random() - 0.5) * 8)),
-      hope: Math.max(10, Math.round((hope / total) * 100) + Math.round((Math.random() - 0.5) * 10)),
-      trust: Math.max(10, Math.round((trust / total) * 100) + Math.round((Math.random() - 0.5) * 8)),
-    }));
+    return hours.map((h, i) => {
+      const offset = (i - hours.length / 2) * 2;
+      return {
+        timestamp: `${new Date().toISOString().split('T')[0]} ${h}`,
+        anger: Math.max(5, Math.round((anger / total) * 100) + Math.round(offset * 0.4)),
+        fear: Math.max(5, Math.round((fear / total) * 100) - Math.round(offset * 0.3)),
+        hope: Math.max(10, Math.round((hope / total) * 100) + Math.round(offset * 0.5)),
+        trust: Math.max(10, Math.round((trust / total) * 100) + Math.round(offset * 0.3)),
+      };
+    });
   }, [allPosts]);
 
   const deriveInfluencers = useCallback((): Influencer[] => {
@@ -291,12 +300,12 @@ export function useSocialSearch(autoFetch = true) {
     if (schemePosts.length === 0) return [];
     return schemePosts.slice(0, 6).map((p, i) => {
       const sentiment = detectSentiment(p.text);
-      const before = 40 + Math.round(Math.random() * 15);
-      const after = sentiment === 'positive' ? before + 15 + Math.round(Math.random() * 10) : before + Math.round(Math.random() * 5);
+      const before = 40 + (i * 3);
+      const after = sentiment === 'positive' ? before + 20 : before + 5;
       return {
         id: `sc${i}`,
         name: p.text.slice(0, 60),
-        impactScore: Math.min(95, 60 + Math.round(Math.random() * 30)),
+        impactScore: Math.min(95, 60 + (p.likes % 30)),
         sentimentBefore: before,
         sentimentAfter: after,
         announcementDate: p.created_at,
@@ -392,14 +401,14 @@ export function useSocialSearch(autoFetch = true) {
         const pos = mentions.filter(p => detectSentiment(p.text) === 'positive').length;
         sentiment = Math.round((pos / mentions.length) * 100);
       } else {
-        // Random variation if no mentions
-        sentiment = 35 + Math.round(Math.random() * 30);
+        // Deterministic neutral fallback when no mentions
+        sentiment = 50;
       }
       return {
         id: name.slice(0, 3).toLowerCase(),
         name,
         sentiment,
-        population: 20000 + Math.round(Math.random() * 70000),
+        population: 30000 + (i * 2000),
       };
     });
   }, [allPosts]);
@@ -421,7 +430,7 @@ export function useSocialSearch(autoFetch = true) {
       oppositionMomentum: {
         score: Math.min(100, Math.round((neg / total) * 150)),
         trend: neg < total * 0.3 ? 'down' as const : 'up' as const,
-        change: -Math.round(Math.random() * 5 * 10) / 10,
+        change: -Math.round(((neg - pos) / total) * 50) / 10,
       },
       misinformationRisk: {
         level: misinfo > 3 ? 'high' as const : misinfo > 0 ? 'medium' as const : 'low' as const,

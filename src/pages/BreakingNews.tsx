@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Panel } from '@/components/dashboard/Panel';
 import { SeverityBadge } from '@/components/dashboard/Badges';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { AlertTriangle, Clock, MapPin, ExternalLink, Bell, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function BreakingNews() {
-  const { isLoading, breakingNews, fetchedAt } = useSocialSearch();
+  const { isLoading, breakingNews, fetchedAt } = useSocialData();
   const [actionNotes, setActionNotes] = useState<Record<string, string>>({});
 
   if (isLoading) {

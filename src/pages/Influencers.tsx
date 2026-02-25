@@ -1,14 +1,14 @@
 import { Panel } from '@/components/dashboard/Panel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { AlignmentBadge } from '@/components/dashboard/Badges';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Users, TrendingUp, MessageSquare, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Influencers() {
-  const { isLoading, influencers, mediaChannels, fetchedAt } = useSocialSearch();
+  const { isLoading, influencers, mediaChannels, fetchedAt } = useSocialData();
 
   if (isLoading) {
     return (

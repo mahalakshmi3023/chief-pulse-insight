@@ -1,7 +1,8 @@
+import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { samplePosts, districts } from '@/data/mockData';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { TrendBadge } from './Badges';
 import { MessageSquare, Share2, ThumbsUp, ExternalLink, Hash, TrendingUp, BarChart3, MapPin, Clock, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,10 +23,38 @@ interface HashtagDrawerProps {
 }
 
 export function HashtagDrawer({ open, onClose, hashtag }: HashtagDrawerProps) {
+  const { allPosts, constituencies } = useSocialData();
+
+  // Filter live posts matching this hashtag
+  const posts = useMemo(() => {
+    if (!hashtag) return [];
+    const tagLower = hashtag.tag.toLowerCase();
+    return allPosts.filter(p => p.text.toLowerCase().includes(tagLower)).slice(0, 10);
+  }, [hashtag, allPosts]);
+
+  // Build timeline from live post timestamps
+  const timelineData = useMemo(() => {
+    if (posts.length === 0) return [];
+    const buckets: Record<string, number> = {};
+    const hours = ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM'];
+    hours.forEach(h => { buckets[h] = 0; });
+    for (const post of posts) {
+      const hour = new Date(post.created_at).getHours();
+      if (hour < 9) buckets['6AM'] += post.likes + post.shares + 1;
+      else if (hour < 12) buckets['9AM'] += post.likes + post.shares + 1;
+      else if (hour < 15) buckets['12PM'] += post.likes + post.shares + 1;
+      else if (hour < 18) buckets['3PM'] += post.likes + post.shares + 1;
+      else if (hour < 21) buckets['6PM'] += post.likes + post.shares + 1;
+      else buckets['9PM'] += post.likes + post.shares + 1;
+    }
+    return hours.map(h => ({ hour: h, volume: buckets[h] }));
+  }, [posts]);
+
   if (!hashtag) return null;
 
-  const posts = samplePosts[hashtag.tag as keyof typeof samplePosts] || [];
-  const relatedDistricts = hashtag.districts.map(id => districts.find(d => d.id === id)).filter(Boolean);
+  const relatedConstituencies = hashtag.districts
+    .map(id => constituencies.find(c => c.id === id))
+    .filter(Boolean);
 
   const sentimentColor = {
     positive: 'bg-success/10 text-success border-success/20',
@@ -40,22 +69,9 @@ export function HashtagDrawer({ open, onClose, hashtag }: HashtagDrawerProps) {
     news: 'bg-muted-foreground'
   };
 
-  // Mock timeline data
-  const timelineData = [
-    { hour: '6AM', volume: 2400 },
-    { hour: '9AM', volume: 5800 },
-    { hour: '12PM', volume: 8200 },
-    { hour: '3PM', volume: 7100 },
-    { hour: '6PM', volume: 9500 },
-    { hour: '9PM', volume: 6300 },
-  ];
-
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
   };
 
   const itemVariants = {
@@ -74,7 +90,7 @@ export function HashtagDrawer({ open, onClose, hashtag }: HashtagDrawerProps) {
             {hashtag.tag}
           </SheetTitle>
           <SheetDescription>
-            Detailed analytics and sample posts
+            Detailed analytics from live data
           </SheetDescription>
         </SheetHeader>
 
@@ -105,9 +121,9 @@ export function HashtagDrawer({ open, onClose, hashtag }: HashtagDrawerProps) {
             <div className="p-4 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">Reach</p>
+                <p className="text-xs text-muted-foreground">Posts</p>
               </div>
-              <p className="text-xl font-bold">{((hashtag.volume * 2.4) / 1000000).toFixed(1)}M</p>
+              <p className="text-xl font-bold">{posts.length}</p>
             </div>
           </motion.div>
 
@@ -156,60 +172,70 @@ export function HashtagDrawer({ open, onClose, hashtag }: HashtagDrawerProps) {
             </TabsContent>
 
             <TabsContent value="timeline" className="mt-4">
-              <div className="h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={timelineData}>
-                    <defs>
-                      <linearGradient id="hashtagGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        fontSize: '12px'
-                      }} 
-                    />
-                    <Area type="monotone" dataKey="volume" stroke="hsl(var(--primary))" fill="url(#hashtagGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">Volume over last 24 hours</p>
+              {timelineData.length > 0 ? (
+                <>
+                  <div className="h-40">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={timelineData}>
+                        <defs>
+                          <linearGradient id="hashtagGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
+                        <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px',
+                            fontSize: '12px'
+                          }} 
+                        />
+                        <Area type="monotone" dataKey="volume" stroke="hsl(var(--primary))" fill="url(#hashtagGradient)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center mt-2">Volume from live posts</p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No timeline data available</p>
+              )}
             </TabsContent>
 
             <TabsContent value="districts" className="mt-4">
-              <div className="grid grid-cols-2 gap-2">
-                {relatedDistricts.map((district, index) => (
-                  <motion.div 
-                    key={district?.id} 
-                    className="p-3 rounded-xl bg-muted/30 border border-border/50"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <MapPin className="w-3 h-3 text-primary" />
-                      <span className="text-sm font-medium">{district?.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Progress value={district?.sentiment} className="h-1.5 flex-1" />
-                      <span className="text-xs text-muted-foreground">{district?.sentiment}%</span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              {relatedConstituencies.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {relatedConstituencies.map((c, index) => (
+                    <motion.div 
+                      key={c?.id} 
+                      className="p-3 rounded-xl bg-muted/30 border border-border/50"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <MapPin className="w-3 h-3 text-primary" />
+                        <span className="text-sm font-medium">{c?.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Progress value={c?.sentiment} className="h-1.5 flex-1" />
+                        <span className="text-xs text-muted-foreground">{c?.sentiment}%</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No region data available</p>
+              )}
             </TabsContent>
           </Tabs>
 
-          {/* Sample Posts */}
+          {/* Live Posts */}
           <motion.div variants={itemVariants}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-muted-foreground uppercase font-medium">Sample Posts</p>
+              <p className="text-xs text-muted-foreground uppercase font-medium">Live Posts</p>
               <Badge variant="secondary" className="text-xs">{posts.length} posts</Badge>
             </div>
             <div className="space-y-3">
@@ -222,25 +248,25 @@ export function HashtagDrawer({ open, onClose, hashtag }: HashtagDrawerProps) {
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.01 }}
                 >
-                  <p className="text-sm text-foreground mb-3">{post.content}</p>
+                  <p className="text-sm text-foreground mb-3 line-clamp-3">{post.text}</p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-4">
                       <span className="flex items-center gap-1.5 text-primary">
                         <ThumbsUp className="w-3.5 h-3.5" />
-                        {post.engagement}
+                        {post.likes}
                       </span>
-                      <Badge variant="outline" className="h-5 text-[10px]">{post.source}</Badge>
+                      <Badge variant="outline" className="h-5 text-[10px] capitalize">{post.platform}</Badge>
                     </div>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {new Date(post.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 </motion.div>
               )) : (
                 <div className="p-6 text-center rounded-xl bg-muted/20">
                   <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">No sample posts available</p>
+                  <p className="text-sm text-muted-foreground">No live posts found for this hashtag</p>
                 </div>
               )}
             </div>
