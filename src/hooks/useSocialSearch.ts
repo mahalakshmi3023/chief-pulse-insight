@@ -405,7 +405,7 @@ export function useSocialSearch(autoFetch = true) {
         sentiment = 50;
       }
       return {
-        id: name.slice(0, 3).toLowerCase(),
+        id: `c${i}`,
         name,
         sentiment,
         population: 30000 + (i * 2000),

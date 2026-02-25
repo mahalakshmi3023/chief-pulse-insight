@@ -34,11 +34,7 @@ const pages = [
   { name: 'Admin', path: '/admin', icon: Settings, description: 'Role management' },
 ];
 
-const recentSearches = [
-  { query: '#TNWaterCrisis', type: 'hashtag' },
-  { query: 'Chennai', type: 'district' },
-  { query: 'Employment', type: 'topic' },
-];
+// No hardcoded searches - all data comes from live APIs
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
@@ -79,21 +75,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         
-        {/* Recent Searches */}
-        {!search && (
-          <CommandGroup heading="Recent Searches">
-            {recentSearches.map((item, idx) => (
-              <CommandItem key={idx} className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{item.query}</span>
-                <Badge variant="outline" className="ml-auto text-xs">
-                  {item.type}
-                </Badge>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        )}
-
         {/* Quick Actions */}
         <CommandGroup heading="Quick Actions">
           <CommandItem onSelect={() => runCommand(() => navigate('/reports'))}>
