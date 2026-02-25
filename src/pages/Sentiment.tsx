@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Panel } from '@/components/dashboard/Panel';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, BarChart, Bar } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Sentiment() {
-  const { isLoading, sentimentSeries, emotionsSeries, constituencies, fetchedAt } = useSocialSearch();
+  const { isLoading, sentimentSeries, emotionsSeries, constituencies, fetchedAt } = useSocialData();
   const districts = constituencies;
 
   const [selectedDistrict, setSelectedDistrict] = useState<typeof districts[0] | null>(null);

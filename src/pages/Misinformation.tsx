@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Panel } from '@/components/dashboard/Panel';
 import { SeverityBadge, StatusBadge } from '@/components/dashboard/Badges';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { ShieldAlert, TrendingUp, Link, Users, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Misinformation() {
-  const { isLoading, misinformationClaims, fetchedAt } = useSocialSearch();
+  const { isLoading, misinformationClaims, fetchedAt } = useSocialData();
   const [selectedClaim, setSelectedClaim] = useState<typeof misinformationClaims[0] | null>(null);
   const { toast } = useToast();
 

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFilters } from '@/contexts/FilterContext';
-import { districts, topics } from '@/data/mockData';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, RefreshCw, Search, Command } from 'lucide-react';
@@ -17,9 +17,8 @@ interface GlobalHeaderProps {
 
 export function GlobalHeader({ onOpenCommandPalette }: GlobalHeaderProps) {
   const { filters, updateFilter } = useFilters();
+  const { search, isLoading: isRefreshing, query, fetchedAt, constituencies, topics } = useSocialData();
   const { toast } = useToast();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const handleExport = () => {
     toast({
@@ -29,24 +28,21 @@ export function GlobalHeader({ onOpenCommandPalette }: GlobalHeaderProps) {
   };
 
   const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Simulate refresh
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLastUpdated(new Date());
-    setIsRefreshing(false);
-    toast({
-      title: 'Data refreshed',
-      description: 'All metrics have been updated.',
-    });
+    await search(query);
   };
 
   // Format time ago
   const getTimeAgo = () => {
-    const diff = Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000);
+    if (!fetchedAt) return 'Loading...';
+    const diff = Math.floor((new Date().getTime() - fetchedAt.getTime()) / 1000);
     if (diff < 60) return 'Just now';
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     return `${Math.floor(diff / 3600)}h ago`;
   };
+
+  // Use live-derived districts/topics for dropdowns
+  const districtOptions = constituencies.map(c => ({ id: c.id, name: c.name }));
+  const topicOptions = topics.map(t => ({ id: t.id, name: t.name }));
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-border/50"
@@ -91,7 +87,7 @@ export function GlobalHeader({ onOpenCommandPalette }: GlobalHeaderProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Districts</SelectItem>
-                {districts.map(d => (
+                {districtOptions.map(d => (
                   <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -103,7 +99,7 @@ export function GlobalHeader({ onOpenCommandPalette }: GlobalHeaderProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Topics</SelectItem>
-                {topics.map(t => (
+                {topicOptions.map(t => (
                   <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                 ))}
               </SelectContent>

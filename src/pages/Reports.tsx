@@ -1,6 +1,6 @@
 import { Panel } from '@/components/dashboard/Panel';
 import { StatusBadge } from '@/components/dashboard/Badges';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Reports() {
-  const { isLoading, reports, fetchedAt } = useSocialSearch();
+  const { isLoading, reports, fetchedAt } = useSocialData();
   const { toast } = useToast();
 
   const handleExport = (format: string) => {

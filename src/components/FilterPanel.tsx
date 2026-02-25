@@ -26,7 +26,7 @@ import {
   ThumbsDown, Minus, RotateCcw, Save, Check
 } from 'lucide-react';
 import { useFilters } from '@/contexts/FilterContext';
-import { districts, sources, topics } from '@/data/mockData';
+import { useSocialData } from '@/contexts/SocialDataContext';
 
 interface FilterPreset {
   id: string;
@@ -56,6 +56,16 @@ const sentimentOptions = [
 
 export function FilterPanel() {
   const { filters, updateFilter, resetFilters } = useFilters();
+  const { constituencies, topics } = useSocialData();
+  const districts = constituencies;
+  // Static sources list (these are platform categories, not data-derived)
+  const sources = [
+    { id: 's1', name: 'Twitter/X', type: 'social' as const },
+    { id: 's2', name: 'Facebook', type: 'social' as const },
+    { id: 's3', name: 'Instagram', type: 'social' as const },
+    { id: 's4', name: 'News', type: 'news' as const },
+    { id: 's5', name: 'Firecrawl', type: 'social' as const },
+  ];
   const [open, setOpen] = useState(false);
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);

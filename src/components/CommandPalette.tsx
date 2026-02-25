@@ -13,7 +13,7 @@ import {
   Home, TrendingUp, Heart, Newspaper, ShieldAlert, Users, Target, 
   FileText, Settings, Search, Hash, MapPin, Zap, Clock, ArrowRight
 } from 'lucide-react';
-import { hashtags, districts, topics, influencers, schemes } from '@/data/mockData';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { useFilters } from '@/contexts/FilterContext';
 import { Badge } from '@/components/ui/badge';
 
@@ -43,6 +43,7 @@ const recentSearches = [
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
   const { updateFilter } = useFilters();
+  const { hashtags, constituencies, topics, influencers } = useSocialData();
   const [search, setSearch] = useState('');
 
   const runCommand = useCallback((command: () => void) => {
@@ -55,7 +56,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     h.tag.toLowerCase().includes(search.toLowerCase())
   ).slice(0, 5);
 
-  const filteredDistricts = districts.filter(d => 
+  const filteredDistricts = constituencies.filter(d => 
     d.name.toLowerCase().includes(search.toLowerCase())
   ).slice(0, 5);
 

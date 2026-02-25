@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Panel } from '@/components/dashboard/Panel';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function PolicyImpact() {
-  const { isLoading, schemes, sentimentSeries, fetchedAt } = useSocialSearch();
+  const { isLoading, schemes, sentimentSeries, fetchedAt } = useSocialData();
   const [showHistorical, setShowHistorical] = useState(false);
 
   if (isLoading) {

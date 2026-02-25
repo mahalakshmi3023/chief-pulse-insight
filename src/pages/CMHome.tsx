@@ -3,7 +3,7 @@ import { KPICard } from '@/components/dashboard/KPICard';
 import { Panel } from '@/components/dashboard/Panel';
 import { HashtagDrawer } from '@/components/dashboard/HashtagDrawer';
 import { TrendBadge, AlignmentBadge } from '@/components/dashboard/Badges';
-import { useSocialSearch } from '@/hooks/useSocialSearch';
+import { useSocialData } from '@/contexts/SocialDataContext';
 import { Activity, AlertTriangle, ShieldAlert, TrendingUp, Users, BarChart3, Crown, Clock, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid } from 'recharts';
@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CMHome() {
-  const { isLoading, hashtags, constituencies, topics, influencers, schemes, emotionsSeries, breakingNews, kpiData, fetchedAt } = useSocialSearch();
+  const { isLoading, hashtags, constituencies, topics, influencers, schemes, emotionsSeries, breakingNews, kpiData, fetchedAt } = useSocialData();
 
   const [selectedHashtag, setSelectedHashtag] = useState<typeof hashtags[0] | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
