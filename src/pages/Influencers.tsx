@@ -1,209 +1,106 @@
 import { Panel } from '@/components/dashboard/Panel';
 import { DataTable } from '@/components/dashboard/DataTable';
 import { AlignmentBadge } from '@/components/dashboard/Badges';
-import { influencers, mediaChannels } from '@/data/mockData';
+import { useSocialSearch } from '@/hooks/useSocialSearch';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Users, Tv, TrendingUp, MessageSquare } from 'lucide-react';
+import { Users, TrendingUp, MessageSquare, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Influencers() {
-  // Prepare media bias chart data
+  const { isLoading, influencers, mediaChannels, fetchedAt } = useSocialSearch();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <span className="text-muted-foreground">Loading influencer data from live APIs...</span>
+        </div>
+        <Skeleton className="h-96 rounded-xl" />
+      </div>
+    );
+  }
+
   const biasChartData = mediaChannels.map(ch => ({
     name: ch.name,
     tilt: ch.sentimentTilt,
     fill: ch.sentimentTilt > 0 ? 'hsl(var(--success))' : ch.sentimentTilt < 0 ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))'
   }));
 
-  // Mock debate topics data
-  const debateTopics = [
-    { topic: 'Water Supply', frequency: 42 },
-    { topic: 'Tourism Development', frequency: 38 },
-    { topic: 'Leadership Initiatives', frequency: 35 },
-    { topic: 'Employment', frequency: 28 },
-    { topic: 'Infrastructure', frequency: 22 },
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Influencers & Media Coverage</h1>
-        <p className="text-sm text-muted-foreground mt-1">Track key voices and media sentiment patterns in Puducherry</p>
+        <h1 className="text-2xl font-semibold text-foreground">
+          Influencers & Media Coverage
+          <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-xs ml-3">Live API</Badge>
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">From live social media APIs · {fetchedAt?.toLocaleTimeString()}</p>
       </div>
 
-      {/* Influencer Impact Tracker */}
-      <Panel title="Influencer Impact Tracker" subtitle="Top voices shaping public narrative">
-        <DataTable
-          data={influencers}
-          columns={[
-            { key: 'name', header: 'Name', render: (item) => (
-              <div>
-                <p className="font-medium text-foreground">{item.name}</p>
-                <p className="text-xs text-muted-foreground">{item.handle}</p>
-              </div>
-            )},
-            { key: 'platform', header: 'Platform', render: (item) => (
-              <span className="capitalize text-sm">{item.platform}</span>
-            )},
-            { key: 'followers', header: 'Followers', className: 'hidden md:table-cell', render: (item) => (
-              <span>{(item.followers / 1000).toFixed(0)}K</span>
-            )},
-            { key: 'reach', header: 'Reach', render: (item) => (
-              <span className="font-medium">{(item.reach / 1000).toFixed(0)}K</span>
-            )},
-            { key: 'engagement', header: 'Engagement', className: 'hidden lg:table-cell', render: (item) => (
-              <span>{item.engagement}%</span>
-            )},
-            { key: 'alignment', header: 'Alignment', render: (item) => (
-              <AlignmentBadge alignment={item.alignment} />
-            )},
-            { key: 'topics', header: 'Recent Topics', className: 'hidden xl:table-cell', render: (item) => (
-              <div className="flex gap-1">
-                {item.recentTopics.slice(0, 2).map((topic, idx) => (
-                  <span key={idx} className="px-1.5 py-0.5 rounded bg-muted text-xs text-muted-foreground">
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            )},
-          ]}
-        />
-      </Panel>
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Media Bias Analysis */}
-        <Panel title="Media Bias Analysis" subtitle="Sentiment tilt by channel">
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={biasChartData} layout="vertical">
-                <XAxis type="number" domain={[-100, 100]} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={120} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
-                  formatter={(value: number) => [`${value > 0 ? '+' : ''}${value}`, 'Sentiment Tilt']}
-                />
-                <Bar dataKey="tilt" radius={[0, 4, 4, 0]}>
-                  {biasChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-border">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-success" />
-              <span className="text-xs text-muted-foreground">Pro-Leader</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Neutral</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-destructive" />
-              <span className="text-xs text-muted-foreground">Anti-Leader</span>
-            </div>
-          </div>
-        </Panel>
-
-        {/* TV Debate Topics */}
-        <Panel title="Media Debate Topics" subtitle="Most discussed topics this week">
-          <div className="space-y-4">
-            {debateTopics.map((topic, idx) => (
-              <div key={idx} className="flex items-center gap-4">
-                <span className="text-lg font-semibold text-muted-foreground w-6">#{idx + 1}</span>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-foreground">{topic.topic}</span>
-                    <span className="text-sm text-muted-foreground">{topic.frequency} segments</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary rounded-full"
-                      style={{ width: `${(topic.frequency / 50) * 100}%` }}
-                    />
-                  </div>
+      <Panel title="Influencer Impact Tracker" subtitle={`${influencers.length} influencers from live data`}>
+        {influencers.length > 0 ? (
+          <DataTable
+            data={influencers}
+            columns={[
+              { key: 'name', header: 'Name', render: (item) => (
+                <div>
+                  <p className="font-medium text-foreground">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">{item.handle}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </Panel>
-      </div>
-
-      {/* Media Channels Table */}
-      <Panel title="Media Channel Coverage" subtitle="Hours of coverage by channel">
-        <DataTable
-          data={mediaChannels}
-          columns={[
-            { key: 'name', header: 'Channel', render: (item) => (
-              <div className="flex items-center gap-2">
-                <Tv className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium">{item.name}</span>
-              </div>
-            )},
-            { key: 'type', header: 'Type', render: (item) => (
-              <span className="capitalize px-2 py-0.5 rounded bg-muted text-xs">{item.type}</span>
-            )},
-            { key: 'coverage', header: 'Coverage', render: (item) => (
-              <span>{item.coverage} {item.type === 'tv' ? 'hrs' : 'articles'}</span>
-            )},
-            { key: 'sentimentTilt', header: 'Sentiment Tilt', render: (item) => {
-              const color = item.sentimentTilt > 0 ? 'text-success' : item.sentimentTilt < 0 ? 'text-destructive' : 'text-muted-foreground';
-              return <span className={`font-medium ${color}`}>{item.sentimentTilt > 0 ? '+' : ''}{item.sentimentTilt}</span>;
-            }},
-            { key: 'topTopics', header: 'Top Topics', className: 'hidden lg:table-cell', render: (item) => (
-              <div className="flex gap-1 flex-wrap">
-                {item.topTopics.slice(0, 3).map((topic, idx) => (
-                  <span key={idx} className="px-1.5 py-0.5 rounded bg-muted text-xs text-muted-foreground">
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            )},
-          ]}
-        />
+              )},
+              { key: 'platform', header: 'Platform', render: (item) => <span className="capitalize text-sm">{item.platform}</span> },
+              { key: 'followers', header: 'Followers', className: 'hidden md:table-cell', render: (item) => <span>{(item.followers / 1000).toFixed(0)}K</span> },
+              { key: 'reach', header: 'Reach', render: (item) => <span className="font-medium">{(item.reach / 1000).toFixed(0)}K</span> },
+              { key: 'engagement', header: 'Engagement', className: 'hidden lg:table-cell', render: (item) => <span>{item.engagement}%</span> },
+              { key: 'alignment', header: 'Alignment', render: (item) => <AlignmentBadge alignment={item.alignment} /> },
+              { key: 'topics', header: 'Recent Topics', className: 'hidden xl:table-cell', render: (item) => (
+                <div className="flex gap-1">
+                  {item.recentTopics.slice(0, 2).map((topic, idx) => (
+                    <span key={idx} className="px-1.5 py-0.5 rounded bg-muted text-xs text-muted-foreground">{topic}</span>
+                  ))}
+                </div>
+              )},
+            ]}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground py-8 text-center">No influencers detected from live data</p>
+        )}
       </Panel>
 
-      {/* Summary Stats */}
+      {/* Media Bias */}
+      <Panel title="Platform Sentiment Analysis" subtitle="From live API data">
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={biasChartData} layout="vertical">
+              <XAxis type="number" domain={[-100, 100]} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+              <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={120} stroke="hsl(var(--muted-foreground))" />
+              <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`${value > 0 ? '+' : ''}${value}`, 'Sentiment Tilt']} />
+              <Bar dataKey="tilt" radius={[0, 4, 4, 0]}>
+                {biasChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Panel>
+
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-muted/30 border border-border">
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground uppercase">Total Influencers</span>
-          </div>
+          <div className="flex items-center gap-2 mb-2"><Users className="w-4 h-4 text-muted-foreground" /><span className="text-xs text-muted-foreground uppercase">Total Influencers</span></div>
           <p className="text-2xl font-bold text-foreground">{influencers.length}</p>
         </div>
         <div className="p-4 rounded-xl bg-success/10 border border-success/20">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-success" />
-            <span className="text-xs text-muted-foreground uppercase">Pro-Leader Voices</span>
-          </div>
-          <p className="text-2xl font-bold text-success">
-            {influencers.filter(i => i.alignment === 'pro').length}
-          </p>
+          <div className="flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4 text-success" /><span className="text-xs text-muted-foreground uppercase">Pro-Leader</span></div>
+          <p className="text-2xl font-bold text-success">{influencers.filter(i => i.alignment === 'pro').length}</p>
         </div>
         <div className="p-4 rounded-xl bg-muted border border-border">
-          <div className="flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground uppercase">Neutral Voices</span>
-          </div>
-          <p className="text-2xl font-bold text-muted-foreground">
-            {influencers.filter(i => i.alignment === 'neutral').length}
-          </p>
+          <div className="flex items-center gap-2 mb-2"><MessageSquare className="w-4 h-4 text-muted-foreground" /><span className="text-xs text-muted-foreground uppercase">Neutral</span></div>
+          <p className="text-2xl font-bold text-muted-foreground">{influencers.filter(i => i.alignment === 'neutral').length}</p>
         </div>
         <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-destructive rotate-180" />
-            <span className="text-xs text-muted-foreground uppercase">Anti-Leader Voices</span>
-          </div>
-          <p className="text-2xl font-bold text-destructive">
-            {influencers.filter(i => i.alignment === 'anti').length}
-          </p>
+          <div className="flex items-center gap-2 mb-2"><TrendingUp className="w-4 h-4 text-destructive rotate-180" /><span className="text-xs text-muted-foreground uppercase">Anti-Leader</span></div>
+          <p className="text-2xl font-bold text-destructive">{influencers.filter(i => i.alignment === 'anti').length}</p>
         </div>
       </div>
     </div>
