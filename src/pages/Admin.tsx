@@ -1,8 +1,23 @@
 import { Panel } from '@/components/dashboard/Panel';
-import { roles, permissionsMatrix } from '@/data/mockData';
 import { Users, Shield, Check, X } from 'lucide-react';
 
 const pages = ['home', 'trends', 'sentiment', 'breaking', 'misinfo', 'influencers', 'policy', 'reports', 'admin'];
+
+const roles = [
+  { id: 'leader', name: 'Leader', description: 'Full access to all dashboards and reports' },
+  { id: 'secretary', name: 'Chief Secretary', description: 'Full access with admin capabilities' },
+  { id: 'mc', name: 'Media Cell', description: 'Misinformation, trends, and influencer tracking' },
+  { id: 'dc', name: 'Constituency Coordinator', description: 'Constituency-specific data and local crisis management' },
+  { id: 'an', name: 'Analyst', description: 'Read-only access to trends and sentiment' },
+];
+
+const permissionsMatrix: Record<string, string[]> = {
+  leader: ['home', 'trends', 'sentiment', 'breaking', 'misinfo', 'influencers', 'policy', 'reports', 'admin'],
+  secretary: ['home', 'trends', 'sentiment', 'breaking', 'misinfo', 'influencers', 'policy', 'reports', 'admin'],
+  mc: ['home', 'trends', 'misinfo', 'influencers', 'reports'],
+  dc: ['home', 'trends', 'sentiment', 'breaking', 'reports'],
+  an: ['home', 'trends', 'sentiment'],
+};
 
 export default function Admin() {
   return (
@@ -41,7 +56,7 @@ export default function Admin() {
                   <td className="py-2 px-2 font-medium">{role.name}</td>
                   {pages.map((page) => (
                     <td key={page} className="text-center py-2 px-2">
-                      {permissionsMatrix[role.id as keyof typeof permissionsMatrix]?.includes(page) 
+                      {permissionsMatrix[role.id]?.includes(page) 
                         ? <Check className="w-4 h-4 text-success mx-auto" />
                         : <X className="w-4 h-4 text-muted-foreground/30 mx-auto" />}
                     </td>
